@@ -15,7 +15,12 @@ name = "calculator"
 path = "./examples/calculator/features/cuke.rs"
 
 [[test]]
-name = "cucumber"
+name = "cuke"
+path = "./features/cuke.rs"
+harness = false
+
+[[example]]
+name = "cuke"
 path = "./features/cuke.rs"
 
 

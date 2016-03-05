@@ -10,9 +10,8 @@ use cucumber::helpers::cucumber_command;
 use support::env::CucumberWorld;
 use step_definitions::cucumber_steps;
 
-#[test]
-fn cucumber() {
-  let mut runner = WorldRunner::new(CucumberWorld);
+fn main() {
+  let mut runner = WorldRunner::new(CucumberWorld::new());
 
   // Register all steps
   cucumber_steps::register_steps(&mut runner);
@@ -27,5 +26,5 @@ fn cucumber() {
 
   let _ = listener.wait();
 
-  assert!(status.success())
+  std::process::exit(status.code().unwrap())
 }

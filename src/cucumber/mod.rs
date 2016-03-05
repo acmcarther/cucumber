@@ -5,13 +5,22 @@ pub mod helpers;
 mod request;
 mod response;
 
-pub use self::request::{Request, InvokeArgument};
+pub use self::request::*;
 pub use self::response::{Response, InvokeResponse, StepMatchesResponse, StepArg, FailMessage};
 pub use self::response::Step as ResponseStep;
 
+pub struct CucumberState {
+  pub tags: Vec<String>
+}
 
-pub trait SendableStep<World>: Send + Fn(&mut World, Vec<InvokeArgument>) -> InvokeResponse {}
-impl<T, World> SendableStep<World> for T where T: Send + Fn(&mut World, Vec<InvokeArgument>) -> InvokeResponse {}
+impl CucumberState {
+  pub fn new() -> CucumberState {
+    CucumberState { tags: Vec::new() }
+  }
+}
+
+pub trait SendableStep<World>: Send + Fn(&mut CucumberState, &mut World, Vec<InvokeArgument>) -> InvokeResponse {}
+impl<T, World> SendableStep<World> for T where T: Send + Fn(&mut CucumberState, &mut World, Vec<InvokeArgument>) -> InvokeResponse {}
 
 pub type Step<World> = Box<SendableStep<World, Output=InvokeResponse>>;
 
@@ -107,14 +116,14 @@ mod test {
   fn cuke_add_step() {
     type World = u32;
     let mut cuke: Cucumber<World> = Cucumber::new();
-    cuke.given(file!(), line!(), r("^I do a basic thing$"), Box::new(move |_, _| InvokeResponse::Success));
+    cuke.given(file!(), line!(), r("^I do a basic thing$"), Box::new(move |_, _, _| InvokeResponse::Success));
   }
 
   #[test]
   fn cuke_find_match() {
     type World = u32;
     let mut cuke: Cucumber<World> = Cucumber::new();
-    cuke.given("file", 0, r("^I do (\\d+) basic things?$"), Box::new(move |_, _| InvokeResponse::Success));
+    cuke.given("file", 0, r("^I do (\\d+) basic things?$"), Box::new(move |_, _, _| InvokeResponse::Success));
 
     let mut matches = cuke.find_match("I do 6 basic things");
     assert!(matches.len() == 1);

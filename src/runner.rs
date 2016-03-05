@@ -1,16 +1,15 @@
-use cucumber::{Step, Regex, Cucumber, CucumberRegistrar};
+use cucumber::{Step, Regex, Cucumber, CucumberRegistrar, CucumberState};
 use cucumber::{Request, Response, StepMatchesResponse};
 
 use std::str::FromStr;
-use std::ascii::AsciiExt;
 
 pub use cucumber::helpers::r;
 
 #[allow(dead_code)]
 pub struct WorldRunner<World> {
   cuke: Cucumber<World>,
+  cuke_state: CucumberState,
   world: World,
-  tags: Vec<String>
 }
 
 impl <World> WorldRunner<World> {
@@ -18,8 +17,8 @@ impl <World> WorldRunner<World> {
   pub fn new(world: World) -> WorldRunner<World> {
     WorldRunner {
       cuke: Cucumber::new(),
+      cuke_state: CucumberState::new(),
       world: world,
-      tags: Vec::new()
     }
   }
 }
@@ -38,12 +37,12 @@ impl <World> CommandRunner for WorldRunner<World> {
   fn execute_cmd(&mut self, req: Request) -> Response {
     match req {
       Request::BeginScenario(params) => {
-        self.tags = params.tags;
+        self.cuke_state.tags = params.tags;
         Response::BeginScenario
       },
       Request::Invoke(params) => {
         let step = self.cuke.step(u32::from_str(&params.id).unwrap()).unwrap();
-        Response::Invoke(step(&mut self.world, params.args))
+        Response::Invoke(step(&mut self.cuke_state, &mut self.world, params.args))
       },
       Request::StepMatches(params) => {
         let matches = self.cuke.find_match(&params.name_to_match);
@@ -54,18 +53,19 @@ impl <World> CommandRunner for WorldRunner<World> {
         }
       },
       Request::EndScenario(_) => {
-        self.tags = Vec::new();
+        self.cuke_state.tags = Vec::new();
         Response::EndScenario
       },
       // TODO: For some reason, cucumber prints the ruby snippet too. Fix that
       Request::SnippetText(params) => {
-        let command = params.step_keyword.to_ascii_lowercase();
         let text =
-          format!("// In a step registration block where cuke: &mut CucumberRegistrar<YourWorld>\
-          \n{}!(cuke, r(\"^{}$\"), Box::new(move |ref mut world, mut captures| {{ \
-          \n  InvokeResponse::pending(\"TODO\") \
-          \n}}));\
-          ", command, params.step_name);
+          format!("  // In a step registration block where cuke: &mut CucumberRegistrar<YourWorld>\
+          \n  use cucumber::InvokeResponse;\
+          \n  use cucumber::helpers::r;\
+          \n  {}!(cuke, r(\"^{}$\"), Box::new(move |_, _, _| {{\
+          \n    InvokeResponse::pending(\"TODO\")\
+          \n  }}));\
+          ", params.step_keyword, params.step_name);
 
         Response::SnippetText(text)
       }
@@ -104,7 +104,7 @@ mod test {
     let world: u32 = 0;
     let mut runner = WorldRunner::new(world);
 
-    runner.when(file!(), line!(), r("^I increment my world$"), Box::new(move |world, _| {
+    runner.when(file!(), line!(), r("^I increment my world$"), Box::new(move |_, world, _| {
       *world = *world + 1;
       InvokeResponse::Success
     }));

@@ -6,8 +6,8 @@ extern crate hyper;
 extern crate serde;
 extern crate serde_json;
 
-mod cucumber;
-mod runner;
+pub mod cucumber;
+pub mod runner;
 mod server;
 pub mod helpers;
 
@@ -19,9 +19,9 @@ pub use server::{ Server };
 macro_rules! cuke_pop_string {
   ($caps:ident) => {
     match $caps.pop() {
-      Some(InvokeArgument::String(val)) => val,
-      None => return InvokeResponse::fail("Unexpected argument missing in invoke call -- verify step definition arguments near cuke_pop_string!"),
-      _ => return InvokeResponse::fail("Unexpected argument type in invoke call, expected String -- verify step definition arguments near cuke_pop_string!")
+      Some($crate::cucumber::InvokeArgument::String(val)) => val,
+      None => return $crate::cucumber::InvokeResponse::fail("Unexpected argument missing in invoke call -- verify step definition arguments near cuke_pop_string!"),
+      _ => return $crate::cucumber::InvokeResponse::fail("Unexpected argument type in invoke call, expected String -- verify step definition arguments near cuke_pop_string!")
     }
   }
 }
@@ -30,9 +30,9 @@ macro_rules! cuke_pop_string {
 macro_rules! cuke_pop_boolean {
   ($caps:ident) => {
     match $caps.pop() {
-      Some(InvokeArgument::Boolean(val)) => val,
-      None => return InvokeResponse::fail("Unexpected argument missing in invoke call -- verify step definition arguments near cuke_pop_boolean!"),
-      _ => return InvokeResponse::fail("Unexpected argument type in invoke call, expected bool -- verify step definition arguments near cuke_pop_boolean!")
+      Some($crate::cucumber::InvokeArgument::Boolean(val)) => val,
+      None => return $crate::cucumber::InvokeResponse::fail("Unexpected argument missing in invoke call -- verify step definition arguments near cuke_pop_boolean!"),
+      _ => return $crate::cucumber::InvokeResponse::fail("Unexpected argument type in invoke call, expected bool -- verify step definition arguments near cuke_pop_boolean!")
     }
   }
 }
@@ -41,9 +41,9 @@ macro_rules! cuke_pop_boolean {
 macro_rules! cuke_pop_table {
   ($caps:ident) => {
     match $caps.pop() {
-      Some(InvokeArgument::Table(val)) => val,
-      None => return InvokeResponse::fail("Unexpected argument missing in invoke call -- verify step definition arguments near cuke_pop_table!"),
-      _ => return InvokeResponse::fail("Unexpected argument type in invoke call, expected Table -- verify step definition arguments near cuke_pop_table!")
+      Some($crate::cucumber::InvokeArgument::Table(val)) => val,
+      None => return $crate::cucumber::InvokeResponse::fail("Unexpected argument missing in invoke call -- verify step definition arguments near cuke_pop_table!"),
+      _ => return $crate::cucumber::InvokeResponse::fail("Unexpected argument type in invoke call, expected Table -- verify step definition arguments near cuke_pop_table!")
     }
   }
 }
