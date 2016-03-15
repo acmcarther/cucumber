@@ -26,6 +26,6 @@ pub fn main() {
     let mut registry = syntex::Registry::new();
 
     serde_codegen::register(&mut registry);
-    registry.expand("", &src, &dst).unwrap();
+    registry.expand("cuke", &src, &dst).unwrap();
   });
 }

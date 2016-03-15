@@ -24,8 +24,7 @@ fn main() {
     .unwrap_or_else(|e| { panic!("failed to execute process: {}", e) })
     .wait().unwrap();
 
-  listener.some_other_function();
-  let _ = listener.waits();
+  listener.wait();
 
   std::process::exit(status.code().unwrap())
 }
