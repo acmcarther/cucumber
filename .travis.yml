@@ -8,6 +8,8 @@ before_install:
 
 matrix:
   include:
+    - rust: stable
+    - rust: beta
     - rust: nightly
 
 script:

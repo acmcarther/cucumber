@@ -1,6 +1,3 @@
-#![feature(custom_derive, plugin, type_ascription)]
-#![plugin(serde_macros)]
-
 extern crate regex;
 extern crate hyper;
 extern crate serde;

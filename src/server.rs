@@ -33,9 +33,11 @@ impl ServerHandle {
     let _ = self.kill_sender.send(()).unwrap();
   }
 
+  pub fn some_other_function(&self) {}
+
   #[allow(dead_code)]
-  pub fn wait(self) {
-    self.handle.join().unwrap();
+  pub fn waits(&mut self) {
+    //self.handle.join().unwrap();
   }
 }
 
@@ -123,7 +125,7 @@ mod test {
     let _ = TcpStream::connect("0.0.0.0:1234").unwrap();
 
     handle.stop();
-    handle.wait();
+    handle.waits();
   }
 
   #[test]
@@ -181,6 +183,6 @@ mod test {
     }
 
     handle.stop();
-    handle.wait();
+    handle.waits();
   }
 }
