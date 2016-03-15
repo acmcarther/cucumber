@@ -49,7 +49,7 @@ impl <R: CommandRunner + Send> Server<R> {
   }
 
   #[allow(dead_code)]
-  pub fn start(mut self, addr: Option<&'static str>) -> ServerHandle
+  pub fn start(mut self, addr: Option<&'static str>) -> (JoinHandle<()>, Sender<()>)
     where R: 'static {
     let addr = addr.unwrap_or("0.0.0.0:7878");
     let (stop_tx, stop_rx) = channel();
@@ -101,7 +101,20 @@ impl <R: CommandRunner + Send> Server<R> {
     // Wait for the server thread to have started the TcpListener
     main_barrier.wait();
 
-    ServerHandle { handle: handle, kill_sender: stop_tx }
+    // NOTE: The "clean" return value is this server handle
+    //   However, it yields a weird linker error on stable when methods are invoked on it
+    //   when the crate is imported (so not on local tests)
+    //   Therefore, we're returning the components of this structure as a tuple for now
+    //
+    //   See:
+    //     Build: https://travis-ci.org/acmcarther/cucumber-rs/jobs/116256537
+    //     Example Error:
+    //       /home/travis/build/acmcarther/cucumber-rs/examples/calculator/features/cuke.rs:31:
+    //         undefined reference to `server::ServerHandle::waits::hd35f2fdfe2f62e1dyvd'
+    // TODO: Investigate the cause of this linker error and report it, or wait for it to get fixed
+    //
+    //ServerHandle { handle: handle, kill_sender: stop_tx }
+    (handle, stop_tx)
   }
 }
 
@@ -119,11 +132,11 @@ mod test {
   #[test]
   fn it_makes_a_server() {
     let server = Server::new(|_| {Response::BeginScenario});
-    let mut handle = server.start(Some("0.0.0.0:1234"));
+    let (handle, stop_tx) = server.start(Some("0.0.0.0:1234"));
     let _ = TcpStream::connect("0.0.0.0:1234").unwrap();
 
-    handle.stop();
-    handle.wait();
+    stop_tx.send(()).unwrap();
+    handle.join().unwrap();
   }
 
   #[test]
@@ -137,7 +150,7 @@ mod test {
         Request::SnippetText(_) => Response::SnippetText("Snippet".to_owned()),
       }
     });
-    let mut handle = server.start(Some("0.0.0.0:1235"));
+    let (handle, stop_tx) = server.start(Some("0.0.0.0:1235"));
     let mut stream = TcpStream::connect("0.0.0.0:1235").unwrap();
 
     {
@@ -180,7 +193,7 @@ mod test {
       assert_eq!(body, "[\"success\",\"Snippet\"]\n");
     }
 
-    handle.stop();
-    handle.wait();
+    stop_tx.send(()).unwrap();
+    handle.join().unwrap();
   }
 }

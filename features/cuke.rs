@@ -17,14 +17,14 @@ fn main() {
   cucumber_steps::register_steps(&mut runner);
 
   let server = Server::new(runner);
-  let mut listener = server.start(Some("0.0.0.0:7878"));
+  let (handle, _) = server.start(Some("0.0.0.0:7878"));
 
   let status = cucumber_command()
     .spawn()
     .unwrap_or_else(|e| { panic!("failed to execute process: {}", e) })
     .wait().unwrap();
 
-  listener.wait();
+  handle.join().unwrap();
 
   std::process::exit(status.code().unwrap())
 }

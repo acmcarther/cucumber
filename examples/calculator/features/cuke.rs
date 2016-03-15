@@ -19,7 +19,7 @@ fn main() {
   display_steps::register_steps(&mut runner);
 
   let server = Server::new(runner);
-  let mut listener = server.start(Some("0.0.0.0:7878"));
+  let (handle, _) = server.start(Some("0.0.0.0:7878"));
 
   cucumber_command()
     .current_dir("./examples/calculator")
@@ -27,5 +27,5 @@ fn main() {
     .unwrap_or_else(|e| { panic!("failed to execute process: {}", e) })
     .wait().unwrap();
 
-  //let _ = listener.waits();
+  handle.join().unwrap();
 }
