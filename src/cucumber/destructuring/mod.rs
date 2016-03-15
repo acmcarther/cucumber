@@ -1,49 +1,21 @@
-mod invoke_arg_set;
+pub mod invoke_arg;
+pub mod invoke_arg_set;
+
+pub use self::invoke_arg::{
+  FromInvokeArg,
+  Destructurable,
+};
 
 pub use self::invoke_arg_set::{
   InvokeArgSetError,
   FromInvokeArgSet,
+  DestructurableSet,
 };
 
-use cucumber::InvokeArgument;
+#[cfg(test)]
+mod test {
 
-pub trait FromInvokeArg: Sized {
-  type Err;
-  fn from_invoke_arg(InvokeArgument) -> Result<Self, Self::Err>;
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct ImproperInvokeArgError { _priv: () }
-
-impl FromInvokeArg for String {
-  type Err = ImproperInvokeArgError;
-
-  fn from_invoke_arg(arg: InvokeArgument) -> Result<String, ImproperInvokeArgError> {
-    match arg {
-      InvokeArgument::String(val) => Ok(val),
-      _ => Err(ImproperInvokeArgError { _priv: () })
-    }
-  }
-}
-
-impl FromInvokeArg for Vec<Vec<String>> {
-  type Err = ImproperInvokeArgError;
-
-  fn from_invoke_arg(arg: InvokeArgument) -> Result<Vec<Vec<String>>, ImproperInvokeArgError> {
-    match arg {
-      InvokeArgument::Table(val) => Ok(val),
-      _ => Err(ImproperInvokeArgError { _priv: () })
-    }
-  }
-}
-
-impl FromInvokeArg for bool {
-  type Err = ImproperInvokeArgError;
-
-  fn from_invoke_arg(arg: InvokeArgument) -> Result<bool, ImproperInvokeArgError> {
-    match arg {
-      InvokeArgument::Boolean(val) => Ok(val),
-      _ => Err(ImproperInvokeArgError { _priv: () })
-    }
+  #[test]
+  fn fun() {
   }
 }

@@ -4,7 +4,7 @@ use std::collections::HashMap;
 pub mod helpers;
 mod request;
 mod response;
-mod destructuring;
+pub mod destructuring;
 
 pub use self::request::*;
 pub use self::response::{Response, InvokeResponse, StepMatchesResponse, StepArg, FailMessage};

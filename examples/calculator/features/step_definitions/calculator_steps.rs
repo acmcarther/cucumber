@@ -17,11 +17,12 @@ pub fn register_steps(cuke: &mut CucumberRegistrar<CalculatorWorld>) {
     InvokeResponse::Success
   }));
 
-  When!(cuke, r("^the number (\\d+) is entered$"), Box::new(move |_, ref mut world, mut captures| {
-    let str = cuke_pop_string!(captures);
+  When!(cuke, r("^the number (\\d+) is entered$"), Box::new(move |_, ref mut world, captures| {
+    let (str,): (String,) = try_destructure!(captures);
 
     let capture = u32::from_str(&str).unwrap();
     world.calculator.enter(capture);
     InvokeResponse::Success
   }));
+
 }

@@ -1,65 +1,19 @@
 #[macro_export]
-macro_rules! destructured_with_cuke {
-  ([$($i:ident: $t:ty),*], $e: expr) => {
-    Box::new(|cuke: CucumberState, state: State, args: Vec<InvokeArgument>| {
-      $(
-      let $i = "hello".to_owned();
-      )*
-      $e(cuke, state, $($i),*)
-    })
-  }
-}
+macro_rules! try_destructure {
+  ($r: ident) => ({
+    use $crate::cucumber::InvokeResponse;
+    use $crate::cucumber::destructuring::{DestructurableSet};
 
-
-#[macro_export]
-macro_rules! destructured {
-  ([$($i:ident: $t:ty),*], $e: expr) => {
-    Box::new(|_: CucumberState, state: State, args: Vec<InvokeArgument>| {
-      $(
-      let $i = "hello".to_owned();
-      )*
-      $e(state, $($i),*)
-    })
-  }
-}
-
-
-#[macro_export]
-macro_rules! cuke_pop_string {
-  ($caps:ident) => {
-    match $caps.pop() {
-      Some($crate::cucumber::InvokeArgument::String(val)) => val,
-      None => return $crate::cucumber::InvokeResponse::fail("Unexpected argument missing in invoke call -- verify step definition arguments near cuke_pop_string!"),
-      _ => return $crate::cucumber::InvokeResponse::fail("Unexpected argument type in invoke call, expected String -- verify step definition arguments near cuke_pop_string!")
+    match $r.destructure_set() {
+      Ok(e) => e,
+      // TODO: Integrate destructure error information into invoke response
+      //   On second thought, this might be impossible because the error is an associated type
+      Err(_) => return InvokeResponse::fail("Arguments in regular expression did not match arguments in step defintion"),
     }
-  }
+  })
 }
 
-
-#[macro_export]
-macro_rules! cuke_pop_boolean {
-  ($caps:ident) => {
-    match $caps.pop() {
-      Some($crate::cucumber::InvokeArgument::Boolean(val)) => val,
-      None => return $crate::cucumber::InvokeResponse::fail("Unexpected argument missing in invoke call -- verify step definition arguments near cuke_pop_boolean!"),
-      _ => return $crate::cucumber::InvokeResponse::fail("Unexpected argument type in invoke call, expected bool -- verify step definition arguments near cuke_pop_boolean!")
-    }
-  }
-}
-
-
-#[macro_export]
-macro_rules! cuke_pop_table {
-  ($caps:ident) => {
-    match $caps.pop() {
-      Some($crate::cucumber::InvokeArgument::Table(val)) => val,
-      None => return $crate::cucumber::InvokeResponse::fail("Unexpected argument missing in invoke call -- verify step definition arguments near cuke_pop_table!"),
-      _ => return $crate::cucumber::InvokeResponse::fail("Unexpected argument type in invoke call, expected Table -- verify step definition arguments near cuke_pop_table!")
-    }
-  }
-}
-
-
+// NOTE: These are capitalized to follow Cucumber general conventions, rather than Rust
 #[macro_export]
 macro_rules! Given {
   ($cuke:ident, $regex:expr, $body:expr) => {
