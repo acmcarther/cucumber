@@ -1,3 +1,5 @@
+// TODO: Remove this module and move these to appropriate locations, [macro_export]ing therein
+
 #[macro_export]
 macro_rules! try_destructure {
   ($r: ident) => ({
@@ -7,7 +9,6 @@ macro_rules! try_destructure {
     match $r.destructure_set() {
       Ok(e) => e,
       // TODO: Integrate destructure error information into invoke response
-      //   On second thought, this might be impossible because the error is an associated type
       Err(_) => return InvokeResponse::fail("Arguments in regular expression did not match arguments in step defintion"),
     }
   })
@@ -21,14 +22,12 @@ macro_rules! Given {
   }
 }
 
-
 #[macro_export]
 macro_rules! When {
   ($cuke:ident, $regex:expr, $body:expr) => {
     $cuke.when(file!(), line!(), $regex, $body)
   }
 }
-
 
 #[macro_export]
 macro_rules! Then {

@@ -11,11 +11,3 @@ pub use self::invoke_arg_set::{
   FromInvokeArgSet,
   DestructurableSet,
 };
-
-#[cfg(test)]
-mod test {
-
-  #[test]
-  fn fun() {
-  }
-}

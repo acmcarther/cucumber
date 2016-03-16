@@ -1,7 +1,6 @@
 pub use regex::{Regex, Captures};
 use std::collections::HashMap;
 
-pub mod helpers;
 mod request;
 mod response;
 pub mod destructuring;
@@ -104,7 +103,7 @@ impl <World> CucumberRegistrar<World> for Cucumber<World> {
 #[cfg(test)]
 mod test {
   use super::*;
-  use super::helpers::*;
+  use helpers::r;
 
   #[test]
   fn cuke_instantiates() {

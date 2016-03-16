@@ -3,7 +3,7 @@ use cucumber::{Request, Response, StepMatchesResponse};
 
 use std::str::FromStr;
 
-pub use cucumber::helpers::r;
+pub use helpers::r;
 
 #[allow(dead_code)]
 pub struct WorldRunner<World> {

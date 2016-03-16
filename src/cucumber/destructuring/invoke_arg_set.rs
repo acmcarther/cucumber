@@ -109,14 +109,14 @@ mod test {
   }
 
   #[test]
-  fn destructure_failure_for_element_count_fails_correctly() {
+  fn destructure_for_element_count_fails_correctly() {
     let res: Result<(String, String, String), InvokeArgSetError> = vec![InvokeArgument::String("hello".to_owned())].destructure_set();
 
     assert_eq!(res, Err(InvokeArgSetError::ArgCountMismatch { expected: 3, actual: 1}) );
   }
 
   #[test]
-  fn destructure_failure_for_type_mismatch_fails_correctly() {
+  fn destructure_for_type_mismatch_fails_correctly() {
     let res: Result<(bool, bool), InvokeArgSetError> = vec![InvokeArgument::Boolean(true), InvokeArgument::String("hello".to_owned())].destructure_set();
 
     assert_eq!(res, Err(InvokeArgSetError::TypeMismatch {arg_idx: 1}) );
