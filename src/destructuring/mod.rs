@@ -15,7 +15,7 @@ pub use self::invoke_arg_set::{
 #[macro_export]
 macro_rules! try_destructure {
   ($r: ident) => ({
-    use $crate::InvokeResponse;
+    use $crate::response::InvokeResponse;
     use $crate::destructuring::{DestructurableSet};
 
     match $r.destructure_set() {

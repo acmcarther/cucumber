@@ -2,7 +2,7 @@
 include!("request.rs.in");
 
 #[cfg(not(feature = "serde_macros"))]
-include!(concat!(env!("OUT_DIR"), "/cucumber/request.rs"));
+include!(concat!(env!("OUT_DIR"), "/request.rs"));
 
 use std::ascii::AsciiExt;
 

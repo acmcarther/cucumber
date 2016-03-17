@@ -6,22 +6,16 @@ extern crate hyper;
 extern crate serde;
 extern crate serde_json;
 
-mod request;
-mod response;
 mod server;
 
 pub mod definitions;
 pub mod destructuring;
+pub mod request;
+pub mod response;
 pub mod runner;
 pub mod regex;
 pub mod state;
 
-
-pub use definitions::Step;
-pub use definitions::registration::CucumberRegistrar;
-pub use request::InvokeArgument;
-pub use response::{InvokeResponse, FailMessage};
-pub use state::Cucumber;
 pub use runner::{ WorldRunner };
 pub use server::{ Server };
 

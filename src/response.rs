@@ -2,7 +2,7 @@
 include!("response.rs.in");
 
 #[cfg(not(feature = "serde_macros"))]
-include!(concat!(env!("OUT_DIR"), "/cucumber/response.rs"));
+include!(concat!(env!("OUT_DIR"), "/response.rs"));
 
 use serde::{self, Serializer};
 use serde::ser::impls::TupleVisitor2;
