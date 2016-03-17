@@ -1,5 +1,9 @@
-use cucumber::{Step, Regex, Cucumber, CucumberRegistrar, CucumberState};
-use cucumber::{Request, Response, StepMatchesResponse};
+use external_regex::Regex;
+use state::{Cucumber, CucumberState};
+use request::Request;
+use response::{Response, StepMatchesResponse};
+use definitions::Step;
+use definitions::registration::CucumberRegistrar;
 
 use std::str::FromStr;
 
@@ -89,8 +93,8 @@ impl <World> CucumberRegistrar<World> for WorldRunner<World> {
 #[cfg(test)]
 mod test {
   use super::*;
-  use cucumber::CucumberRegistrar;
-  use cucumber::InvokeResponse;
+  use response::InvokeResponse;
+  use definitions::registration::CucumberRegistrar;
 
   use regex;
 

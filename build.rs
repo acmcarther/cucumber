@@ -12,7 +12,7 @@ pub fn main() {
   let out_dir = env::var_os("OUT_DIR").unwrap();
 
   // Files that contain some compiler plugin using code
-  let paths = vec!["cucumber/request.rs", "cucumber/response.rs"];
+  let paths = vec!["request.rs", "response.rs"];
 
   // Don't care if directory already exists
   let _ = fs::create_dir(Path::new(&out_dir).join("cucumber"));

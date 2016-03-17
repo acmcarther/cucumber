@@ -1,21 +1,15 @@
-use std::io::BufRead;
-use std::io::BufReader;
-use std::io::Write;
-
-use std::thread;
-use std::thread::{JoinHandle};
-
+use std::io::{BufRead, BufReader, Write};
+use std::sync::mpsc::{Sender, channel, TryRecvError};
+use std::sync::{Barrier, Arc};
+use std::time::Duration;
+use std::thread::{self, JoinHandle};
 use std::net::TcpListener;
 
 use serde_json;
 
 use runner::CommandRunner;
 
-use std::sync::mpsc::{Sender, channel, TryRecvError};
-use std::sync::{Barrier, Arc};
-use std::time::Duration;
-
-use cucumber::Request;
+use request::Request;
 
 #[allow(dead_code)]
 pub struct Server<R: CommandRunner + Send> {
@@ -127,7 +121,8 @@ mod test {
   use std::io::BufReader;
   use std::io::BufRead;
 
-  use cucumber::{Request, Response, InvokeResponse, StepMatchesResponse};
+  use request::Request;
+  use response::{Response, InvokeResponse, StepMatchesResponse};
 
   #[test]
   fn it_makes_a_server() {

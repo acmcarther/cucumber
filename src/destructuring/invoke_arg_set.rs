@@ -1,4 +1,4 @@
-use cucumber::InvokeArgument;
+use request::InvokeArgument;
 use super::FromInvokeArg;
 
 pub trait FromInvokeArgSet: Sized { type Err;
@@ -77,7 +77,7 @@ auto_define_for_tuple!(12; [A, B, C, D, E, F, G, H, I, J, K, L]);
 #[cfg(test)]
 mod test {
   use super::*;
-  use cucumber::InvokeArgument;
+  use request::InvokeArgument;
 
   #[test]
   fn tuple_1_bool_can_be_destructured() {

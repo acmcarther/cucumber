@@ -1,4 +1,4 @@
-use cucumber::InvokeArgument;
+use request::InvokeArgument;
 
 pub trait Destructurable: Sized {
   fn destructure<T: FromInvokeArg>(self) -> Result<T, T::Err>;
@@ -86,7 +86,7 @@ impl FromInvokeArg for bool {
 #[cfg(test)]
 mod test {
   use super::*;
-  use cucumber::InvokeArgument;
+  use request::InvokeArgument;
 
   #[test]
   fn wrong_type_destructure_fails_correctly() {
