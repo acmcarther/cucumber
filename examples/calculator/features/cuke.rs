@@ -20,8 +20,7 @@ fn main() {
 
   let server = Server::new(runner);
   // NOTE: Unused stop_rx needs to be held, or it will drop and close the server
-  // TODO: fix this, testing it now to make sure CI fails
-  let (handle, _) = server.start(Some("0.0.0.0:7878"));
+  let (handle, stop_rx) = server.start(Some("0.0.0.0:7878"));
 
   let status = cucumber_command()
     .current_dir("./examples/calculator")
