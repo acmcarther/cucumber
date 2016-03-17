@@ -17,21 +17,25 @@ macro_rules! try_destructure {
 // NOTE: These are capitalized to follow Cucumber general conventions, rather than Rust
 #[macro_export]
 macro_rules! Given {
-  ($cuke:ident, $regex:expr, $body:expr) => {
-    $cuke.given(file!(), line!(), $regex, $body)
-  }
+  ($cuke:ident; $regex:expr, $body:expr) => {{
+    use $crate::helpers::r;
+    $cuke.given(file!(), line!(), r($regex), Box::new($body))
+  }}
 }
 
 #[macro_export]
 macro_rules! When {
-  ($cuke:ident, $regex:expr, $body:expr) => {
-    $cuke.when(file!(), line!(), $regex, $body)
-  }
+  ($cuke:ident; $regex:expr, $body:expr) => {{
+    use $crate::helpers::r;
+    $cuke.when(file!(), line!(), r($regex), Box::new($body))
+  }}
 }
 
 #[macro_export]
 macro_rules! Then {
-  ($cuke:ident, $regex:expr, $body:expr) => {
-    $cuke.then(file!(), line!(), $regex, $body)
-  }
+
+  ($cuke:ident; $regex:expr, $body:expr) => {{
+    use $crate::helpers::r;
+    $cuke.then(file!(), line!(), r($regex), Box::new($body))
+  }}
 }

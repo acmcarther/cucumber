@@ -19,13 +19,16 @@ fn main() {
   display_steps::register_steps(&mut runner);
 
   let server = Server::new(runner);
-  let (handle, _) = server.start(Some("0.0.0.0:7878"));
+  // NOTE: Unused stop_rx needs to be held, or it will drop and close the server
+  let (handle, stop_rx) = server.start(Some("0.0.0.0:7878"));
 
-  cucumber_command()
+  let status = cucumber_command()
     .current_dir("./examples/calculator")
     .spawn()
     .unwrap_or_else(|e| { panic!("failed to execute process: {}", e) })
     .wait().unwrap();
 
   handle.join().unwrap();
+
+  std::process::exit(status.code().unwrap())
 }

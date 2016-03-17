@@ -17,7 +17,8 @@ fn main() {
   cucumber_steps::register_steps(&mut runner);
 
   let server = Server::new(runner);
-  let (handle, _) = server.start(Some("0.0.0.0:7878"));
+  // NOTE: Unused stop_rx needs to be held, or it will drop and close the server
+  let (handle, stop_rx) = server.start(Some("0.0.0.0:7878"));
 
   let status = cucumber_command()
     .spawn()
