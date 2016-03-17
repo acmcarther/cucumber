@@ -10,3 +10,4 @@ Feature: The calculator buttons work
   Scenario: I push some other buttons
     When the number 1 is entered
     Then the display says 1
+    Then the current tag state contains the tag "lol"

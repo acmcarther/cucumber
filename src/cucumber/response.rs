@@ -6,6 +6,7 @@ include!(concat!(env!("OUT_DIR"), "/cucumber/response.rs"));
 
 use serde::{self, Serializer};
 use serde::ser::impls::TupleVisitor2;
+use std::fmt::Display;
 
 // NOTE: These defined in response.rs.in (as they need to derive Serialize)
 // pub struct Step
@@ -92,6 +93,22 @@ impl InvokeResponse {
   }
   pub fn fail<T: ToString>(val: T) -> InvokeResponse {
     InvokeResponse::Fail(FailMessage::new(val.to_string()))
+  }
+
+  pub fn check_eq<T: PartialEq + Display>(first: T, second: T) -> InvokeResponse {
+    if first == second {
+      InvokeResponse::Success
+    } else {
+      InvokeResponse::fail(format!("Value [{}] was not equal to [{}]", first, second))
+    }
+  }
+
+  pub fn check<T>(b: bool) -> InvokeResponse {
+    if b {
+      InvokeResponse::Success
+    } else {
+      InvokeResponse::fail("invoke response check failed")
+    }
   }
 }
 
