@@ -91,7 +91,7 @@ impl InvokeResponse {
   pub fn pending<T: ToString>(val: T) -> InvokeResponse {
     InvokeResponse::Pending(val.to_string())
   }
-  pub fn fail<T: ToString>(val: T) -> InvokeResponse {
+  pub fn with_fail_message<T: ToString>(val: T) -> InvokeResponse {
     InvokeResponse::Fail(FailMessage::new(val.to_string()))
   }
 
@@ -99,7 +99,7 @@ impl InvokeResponse {
     if first == second {
       InvokeResponse::Success
     } else {
-      InvokeResponse::fail(format!("Value [{}] was not equal to [{}]", first, second))
+      InvokeResponse::with_fail_message(format!("Value [{}] was not equal to [{}]", first, second))
     }
   }
 
@@ -107,7 +107,7 @@ impl InvokeResponse {
     if b {
       InvokeResponse::Success
     } else {
-      InvokeResponse::fail("invoke response check failed")
+      InvokeResponse::with_fail_message("invoke response check failed")
     }
   }
 }
