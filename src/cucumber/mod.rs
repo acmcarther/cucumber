@@ -1,4 +1,4 @@
-pub use regex::{Regex, Captures};
+pub use external_regex::{Regex, Captures};
 use std::collections::HashMap;
 
 mod request;
@@ -100,10 +100,41 @@ impl <World> CucumberRegistrar<World> for Cucumber<World> {
   }
 }
 
+// NOTE: These are capitalized to follow Cucumber general conventions, rather than Rust
+#[macro_export]
+macro_rules! Given {
+  ($cuke:ident; $regex:expr, $body:expr) => {{
+    use $crate::regex;
+    $cuke.given(file!(), line!(), regex::build($regex), Box::new(move |cuke, world, args| {
+      ($body)(cuke, world, try_destructure!(args))
+    }))
+  }}
+}
+
+#[macro_export]
+macro_rules! When {
+  ($cuke:ident; $regex:expr, $body:expr) => {{
+    use $crate::regex;
+    $cuke.when(file!(), line!(), regex::build($regex), Box::new(move |cuke, world, args| {
+      ($body)(cuke, world, try_destructure!(args))
+    }))
+  }}
+}
+
+#[macro_export]
+macro_rules! Then {
+  ($cuke:ident; $regex:expr, $body:expr) => {{
+    use $crate::regex;
+    $cuke.then(file!(), line!(), regex::build($regex), Box::new(move |cuke, world, args| {
+      ($body)(cuke, world, try_destructure!(args))
+    }))
+  }}
+}
+
 #[cfg(test)]
 mod test {
   use super::*;
-  use helpers::r;
+  use regex;
 
   #[test]
   fn cuke_instantiates() {
@@ -116,14 +147,14 @@ mod test {
   fn cuke_add_step() {
     type World = u32;
     let mut cuke: Cucumber<World> = Cucumber::new();
-    cuke.given(file!(), line!(), r("^I do a basic thing$"), Box::new(move |_, _, _| InvokeResponse::Success));
+    cuke.given(file!(), line!(), regex::build("^I do a basic thing$"), Box::new(move |_, _, _| InvokeResponse::Success));
   }
 
   #[test]
   fn cuke_find_match() {
     type World = u32;
     let mut cuke: Cucumber<World> = Cucumber::new();
-    cuke.given("file", 0, r("^I do (\\d+) basic things?$"), Box::new(move |_, _, _| InvokeResponse::Success));
+    cuke.given("file", 0, regex::build("^I do (\\d+) basic things?$"), Box::new(move |_, _, _| InvokeResponse::Success));
 
     let mut matches = cuke.find_match("I do 6 basic things");
     assert!(matches.len() == 1);

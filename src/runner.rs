@@ -3,8 +3,6 @@ use cucumber::{Request, Response, StepMatchesResponse};
 
 use std::str::FromStr;
 
-pub use helpers::r;
-
 #[allow(dead_code)]
 pub struct WorldRunner<World> {
   cuke: Cucumber<World>,
@@ -94,6 +92,8 @@ mod test {
   use cucumber::CucumberRegistrar;
   use cucumber::InvokeResponse;
 
+  use regex;
+
   #[test]
   fn runner_instantiates() {
     let _: WorldRunner<u32> = WorldRunner::new(0);
@@ -104,7 +104,7 @@ mod test {
     let world: u32 = 0;
     let mut runner = WorldRunner::new(world);
 
-    runner.when(file!(), line!(), r("^I increment my world$"), Box::new(move |_, world, _| {
+    runner.when(file!(), line!(), regex::build("^I increment my world$"), Box::new(move |_, world, _| {
       *world = *world + 1;
       InvokeResponse::Success
     }));
