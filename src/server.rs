@@ -80,7 +80,6 @@ impl <R: CommandRunner + Send> Server<R> {
                 match request {
                   Ok(req_body) => {
                     let response = self.runner.execute_cmd(req_body);
-
                     let _ = stream.write(format!("{}\n", serde_json::to_string(&response).unwrap()).as_bytes());
                   }
                   _ => {}

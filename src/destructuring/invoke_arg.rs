@@ -20,7 +20,7 @@ pub struct ImproperInvokeArgError { _priv: () }
 
 // NOTE: This is a stopgap for impl specialization
 //   The underlying issue is that FromInvokeArg can't be impld for all FromStr
-//   because it creates a conflicting implementation with String and Boolean
+//   because it creates a conflicting implementation with String
 //   Issue: https://github.com/rust-lang/rust/issues/31844
 macro_rules! impl_for_from_str {
   ($t: ty) => {
@@ -39,6 +39,22 @@ macro_rules! impl_for_from_str {
   }
 }
 
+impl <T> FromInvokeArg for Option<T> where T: FromInvokeArg {
+  type Err = ImproperInvokeArgError;
+
+  fn from_invoke_arg(arg: InvokeArgument) -> Result<Option<T>, ImproperInvokeArgError> {
+    match arg {
+      InvokeArgument::None => Ok(None),
+      e @ InvokeArgument::String(_) => {
+        T::from_invoke_arg(e)
+          .map(|r| Some(r))
+          .map_err(|_| ImproperInvokeArgError { _priv: ()})
+      },
+      _ => Err(ImproperInvokeArgError { _priv: () })
+    }
+  }
+}
+
 impl_for_from_str!(f32);
 impl_for_from_str!(f64);
 impl_for_from_str!(isize);
@@ -49,6 +65,7 @@ impl_for_from_str!(usize);
 impl_for_from_str!(u8);
 impl_for_from_str!(u16);
 impl_for_from_str!(u32);
+impl_for_from_str!(bool);
 
 impl FromInvokeArg for String {
   type Err = ImproperInvokeArgError;
@@ -72,17 +89,6 @@ impl FromInvokeArg for Vec<Vec<String>> {
   }
 }
 
-impl FromInvokeArg for bool {
-  type Err = ImproperInvokeArgError;
-
-  fn from_invoke_arg(arg: InvokeArgument) -> Result<bool, ImproperInvokeArgError> {
-    match arg {
-      InvokeArgument::Boolean(val) => Ok(val),
-      _ => Err(ImproperInvokeArgError { _priv: () })
-    }
-  }
-}
-
 #[cfg(test)]
 mod test {
   use super::*;
@@ -100,14 +106,6 @@ mod test {
     let res: String = InvokeArgument::String("hello".to_owned()).destructure().unwrap();
 
     assert_eq!(&res, "hello");
-  }
-
-
-  #[test]
-  fn bool_can_be_destructured() {
-    let res: bool = InvokeArgument::Boolean(true).destructure().unwrap();
-
-    assert_eq!(res, true);
   }
 
   #[test]

@@ -5,6 +5,7 @@ extern crate regex as external_regex;
 extern crate hyper;
 extern crate serde;
 extern crate serde_json;
+extern crate itertools;
 
 mod server;
 
@@ -16,8 +17,8 @@ pub mod runner;
 pub mod regex;
 pub mod state;
 
-pub use runner::{ WorldRunner };
-pub use server::{ Server };
+pub use runner::WorldRunner;
+pub use server::Server;
 
 use std::process::{Command, Stdio};
 

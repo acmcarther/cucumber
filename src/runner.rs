@@ -1,5 +1,5 @@
 use external_regex::Regex;
-use state::{Cucumber, CucumberState};
+use state::Cucumber;
 use request::Request;
 use response::{Response, StepMatchesResponse};
 use definitions::Step;
@@ -10,7 +10,6 @@ use std::str::FromStr;
 #[allow(dead_code)]
 pub struct WorldRunner<World> {
   cuke: Cucumber<World>,
-  cuke_state: CucumberState,
   world: World,
 }
 
@@ -19,7 +18,6 @@ impl <World> WorldRunner<World> {
   pub fn new(world: World) -> WorldRunner<World> {
     WorldRunner {
       cuke: Cucumber::new(),
-      cuke_state: CucumberState::new(),
       world: world,
     }
   }
@@ -39,12 +37,12 @@ impl <World> CommandRunner for WorldRunner<World> {
   fn execute_cmd(&mut self, req: Request) -> Response {
     match req {
       Request::BeginScenario(params) => {
-        self.cuke_state.tags = params.tags;
+        self.cuke.tags = params.tags;
         Response::BeginScenario
       },
       Request::Invoke(params) => {
         let step = self.cuke.step(u32::from_str(&params.id).unwrap()).unwrap();
-        Response::Invoke(step(&mut self.cuke_state, &mut self.world, params.args))
+        Response::Invoke(step(&self.cuke, &mut self.world, params.args))
       },
       Request::StepMatches(params) => {
         let matches = self.cuke.find_match(&params.name_to_match);
@@ -55,7 +53,7 @@ impl <World> CommandRunner for WorldRunner<World> {
         }
       },
       Request::EndScenario(_) => {
-        self.cuke_state.tags = Vec::new();
+        self.cuke.tags = Vec::new();
         Response::EndScenario
       },
       // TODO: For some reason, cucumber prints the ruby snippet too. Fix that

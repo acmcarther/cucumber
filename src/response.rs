@@ -6,11 +6,11 @@ include!(concat!(env!("OUT_DIR"), "/response.rs"));
 
 use serde::{self, Serializer};
 use serde::ser::impls::TupleVisitor2;
-use std::fmt::Display;
+use serde::ser::MapVisitor;
+use std::fmt::Debug;
 
 // NOTE: These defined in response.rs.in (as they need to derive Serialize)
 // pub struct Step
-// pub struct StepArg
 // pub struct FailMessage
 
 #[derive(Eq, PartialEq, Clone, Debug)]
@@ -63,6 +63,52 @@ impl Serialize for Response {
   }
 }
 
+#[derive(Eq, PartialEq, Clone, Debug)]
+pub struct StepArg {
+  pub val: Option<String>,
+  pub pos: Option<u32>
+}
+
+impl Serialize for StepArg {
+  fn serialize<S: serde::ser::Serializer>(&self, s: &mut S) -> Result<(), S::Error> {
+    s.serialize_struct("StepArg", StepArgVisitor {
+      value: self,
+      state: 0
+    })
+  }
+}
+
+struct StepArgVisitor<'a> {
+  value: &'a StepArg,
+  state: u8
+}
+
+impl<'a> MapVisitor for StepArgVisitor<'a> {
+  fn visit<S>(&mut self, serializer: &mut S) -> Result<Option<()>, S::Error>
+      where S: serde::Serializer
+  {
+    match self.state {
+      0 => {
+        self.state += 1;
+        match self.value.val {
+          Some(ref v) => Ok(Some(try!(serializer.serialize_struct_elt("val", v.clone())))),
+          None => Ok(Some(try!(serializer.serialize_struct_elt("val", ()))))
+        }
+      },
+      1 => {
+        self.state += 1;
+        match self.value.pos {
+          Some(ref v) => Ok(Some(try!(serializer.serialize_struct_elt("pos", v.clone())))),
+          None => Ok(Some(try!(serializer.serialize_struct_elt("pos", ()))))
+        }
+      },
+      _ => {
+        Ok(None)
+      },
+    }
+  }
+}
+
 // ["success", []"]
 // ["success", []"]
 // ["success", [{"id": "1", "args":[]]
@@ -95,15 +141,23 @@ impl InvokeResponse {
     InvokeResponse::Fail(FailMessage::new(val.to_string()))
   }
 
-  pub fn check_eq<T: PartialEq + Display>(first: T, second: T) -> InvokeResponse {
+  pub fn check_eq<T: PartialEq + Debug>(first: T, second: T) -> InvokeResponse {
     if first == second {
       InvokeResponse::Success
     } else {
-      InvokeResponse::with_fail_message(format!("Value [{}] was not equal to [{}]", first, second))
+      InvokeResponse::with_fail_message(format!("Value [{:?}] was not equal to [{:?}]", first, second))
     }
   }
 
-  pub fn check<T>(b: bool) -> InvokeResponse {
+  pub fn check_not_eq<T: PartialEq + Debug>(first: T, second: T) -> InvokeResponse {
+    if first == second {
+      InvokeResponse::with_fail_message(format!("Value [{:?}] was equal to [{:?}]", first, second))
+    } else {
+      InvokeResponse::Success
+    }
+  }
+
+  pub fn check(b: bool) -> InvokeResponse {
     if b {
       InvokeResponse::Success
     } else {
@@ -126,7 +180,7 @@ mod test {
 
   #[test]
   fn it_serializes_step_matches_match() {
-    let response = Response::StepMatches(StepMatchesResponse::Match(vec!(Step {id: "1".to_owned(), source: "test".to_owned(), args: vec!(StepArg { val: "arg".to_owned(), pos: 0}) })));
+    let response = Response::StepMatches(StepMatchesResponse::Match(vec!(Step {id: "1".to_owned(), source: "test".to_owned(), args: vec!(StepArg { val: Some("arg".to_owned()), pos: Some(0)}) })));
     let string = serde_json::to_string(&response);
     assert_eq!(string.unwrap(), "[\"success\",[{\"id\":\"1\",\"args\":[{\"val\":\"arg\",\"pos\":0}],\"source\":\"test\"}]]");
   }

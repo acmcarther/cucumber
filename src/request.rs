@@ -11,6 +11,8 @@ use serde::de::{SeqVisitor, Visitor};
 use serde::de::impls::VecVisitor;
 use serde::Error as SerdeError;
 
+use response::StepArg;
+
 // NOTE: These defined in request.rs.in (as they need to derive Deserialize)
 // pub struct StepMatchesRequest
 // pub struct InvokeRequest
@@ -96,13 +98,22 @@ impl Visitor for RequestVisitor {
 #[derive(Eq, PartialEq, Clone, Debug)]
 pub enum InvokeArgument {
   String(String),
-  Boolean(bool),
+  None,
   Table(Vec<Vec<String>>)
 }
 
 impl Deserialize for InvokeArgument {
   fn deserialize<D: Deserializer>(d: &mut D) -> Result<Self, D::Error> {
     d.deserialize(InvokeArgumentVisitor)
+  }
+}
+
+impl InvokeArgument {
+  pub fn from_step_arg(arg: StepArg) -> InvokeArgument {
+    match arg.val {
+      Some(v) => InvokeArgument::String(v),
+      None => InvokeArgument::None
+    }
   }
 }
 
@@ -115,8 +126,8 @@ impl Visitor for InvokeArgumentVisitor {
     Ok(InvokeArgument::String(v.to_owned()))
   }
 
-  fn visit_bool<E: SerdeError>(&mut self, _v: bool) -> Result<InvokeArgument, E> {
-    Ok(InvokeArgument::Boolean(_v))
+  fn visit_unit<E: SerdeError>(&mut self) -> Result<InvokeArgument, E> {
+    Ok(InvokeArgument::None)
   }
 
   fn visit_seq<V: SeqVisitor>(&mut self, _visitor: V) -> Result<InvokeArgument, V::Error> {
@@ -167,28 +178,14 @@ mod test {
   }
 
   #[test]
-  fn read_invoke_bool() {
-    let json = "[\"invoke\", {\"id\":\"1\", \"args\": [true]}]";
-    let res = serde_json::from_str(json);
-    println!("{:?}", res);
-    match res.unwrap() {
-      Request::Invoke(payload) => {
-        assert_eq!(payload, InvokeRequest {id: "1".to_owned(), args: vec!(InvokeArgument::Boolean(true))})
-      },
-      _ => panic!("result was not Invoke type")
-    }
-  }
-
-  #[test]
   fn read_invoke_complicated_args() {
-    let json = "[\"invoke\", {\"id\":\"1\", \"args\": [\"we're\", false, [[\"wired\"],[\"high\"],[\"happy\"]]]}]";
+    let json = "[\"invoke\", {\"id\":\"1\", \"args\": [\"we're\", [[\"wired\"],[\"high\"],[\"happy\"]]]}]";
     let res = serde_json::from_str(json);
     println!("{:?}", res);
     match res.unwrap() {
       Request::Invoke(payload) => {
         assert_eq!(payload, InvokeRequest {id: "1".to_owned(), args: vec!(
               InvokeArgument::String("we're".to_owned()),
-              InvokeArgument::Boolean(false),
               InvokeArgument::Table(vec!(vec!("wired".to_owned()), vec!("high".to_owned()), vec!("happy".to_owned())))
               )})
       },

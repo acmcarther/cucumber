@@ -83,6 +83,6 @@ mod test {
     let mut matches = cuke.find_match("I do 6 basic things");
     assert!(matches.len() == 1);
     let first_match = matches.pop().unwrap();
-    assert_eq!(first_match, Step {id: "0".to_owned(), source: "file:0".to_owned(), args: vec!(StepArg { pos: 5, val: "6".to_owned()}) });
+    assert_eq!(first_match, Step {id: "0".to_owned(), source: "file:0".to_owned(), args: vec!(StepArg { pos: Some(5), val: Some("6".to_owned())}) });
   }
 }

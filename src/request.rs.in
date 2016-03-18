@@ -9,7 +9,6 @@ pub struct StepMatchesRequest {
 // ["invoke", {"id":"1", "args": []}]
 // ["invoke", {"id":"1", "args": ["wired"]}]
 // ["invoke", {"id":"1", "args": ["we're",[["wired"],["high"],["happy"]]]}]
-// TODO: This requires manual encoding because of table being embedded
 #[derive(Deserialize, Eq, PartialEq, Clone, Debug)]
 pub struct InvokeRequest {
   pub id: String,

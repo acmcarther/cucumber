@@ -1,8 +1,8 @@
 use request::InvokeArgument;
 use super::FromInvokeArg;
 
-pub trait FromInvokeArgSet: Sized { type Err;
-  fn from_invoke_arg_set(Vec<InvokeArgument>) -> Result<Self, Self::Err>;
+pub trait FromInvokeArgSet: Sized {
+  fn from_invoke_arg_set(Vec<InvokeArgument>) -> Result<Self, InvokeArgSetError>;
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -13,11 +13,11 @@ pub enum InvokeArgSetError {
 }
 
 pub trait DestructurableSet: Sized {
-  fn destructure_set<T: FromInvokeArgSet>(self) -> Result<T, T::Err>;
+  fn destructure_set<T: FromInvokeArgSet>(self) -> Result<T, InvokeArgSetError>;
 }
 
 impl DestructurableSet for Vec<InvokeArgument> {
-  fn destructure_set<T: FromInvokeArgSet>(self) -> Result<T, T::Err> {
+  fn destructure_set<T: FromInvokeArgSet>(self) -> Result<T, InvokeArgSetError> {
     T::from_invoke_arg_set(self)
   }
 }
@@ -25,8 +25,6 @@ impl DestructurableSet for Vec<InvokeArgument> {
 macro_rules! auto_define_for_tuple {
   ($count:expr; [$($t: ident),+]) => {
     impl <$($t,)+> FromInvokeArgSet for ($($t,)+) where $($t: FromInvokeArg),+ {
-      type Err = InvokeArgSetError;
-
       // Ignore counter being set by the last tuple
       #[allow(unused_assignments)]
       fn from_invoke_arg_set(args: Vec<InvokeArgument>) -> Result<($($t,)+), InvokeArgSetError> {
@@ -53,8 +51,6 @@ macro_rules! auto_define_for_tuple {
 }
 
 impl FromInvokeArgSet for () {
-  type Err = InvokeArgSetError;
-
   fn from_invoke_arg_set(args: Vec<InvokeArgument>) -> Result<(), InvokeArgSetError> {
     if args.len() != 0 { return Err(InvokeArgSetError::ArgCountMismatch {expected: 0, actual: args.len() }) }
     Ok(())
@@ -80,15 +76,6 @@ mod test {
   use request::InvokeArgument;
 
   #[test]
-  fn tuple_1_bool_can_be_destructured() {
-    let res = vec![InvokeArgument::Boolean(true)].destructure_set();
-
-    let (x,): (bool,) = res.unwrap();
-
-    assert_eq!(x, true);
-  }
-
-  #[test]
   fn tuple_1_string_can_be_destructured() {
     let res = vec![InvokeArgument::String("hello".to_owned())].destructure_set();
 
@@ -98,14 +85,30 @@ mod test {
   }
 
   #[test]
-  fn tuple_3_can_be_destructured() {
-    let res = vec![InvokeArgument::String("hello".to_owned()), InvokeArgument::String("world".to_owned()), InvokeArgument::Boolean(true)].destructure_set();
+  fn tuple_1_bool_can_be_destructured() {
+    let res = vec![InvokeArgument::String("false".to_owned())].destructure_set();
 
-    let (x, y, z): (String, String, bool) = res.unwrap();
+    let (x,): (bool,) = res.unwrap();
+
+    assert_eq!(x, false);
+  }
+
+  #[test]
+  fn tuple_1_bool_conversion_fails_correctly() {
+    let res: Result<(bool,), InvokeArgSetError> = vec![InvokeArgument::String("not a bool".to_owned())].destructure_set();
+
+    assert_eq!(res, Err(InvokeArgSetError::TypeMismatch { arg_idx: 0 } ));
+  }
+
+  #[test]
+  fn tuple_3_can_be_destructured() {
+    let res = vec![InvokeArgument::String("hello".to_owned()), InvokeArgument::String("world".to_owned()), InvokeArgument::String("hello".to_owned())].destructure_set();
+
+    let (x, y, z): (String, String, String) = res.unwrap();
 
     assert_eq!(&x, "hello");
     assert_eq!(&y, "world");
-    assert_eq!(z, true);
+    assert_eq!(&z, "hello");
   }
 
   #[test]
@@ -117,7 +120,7 @@ mod test {
 
   #[test]
   fn destructure_for_type_mismatch_fails_correctly() {
-    let res: Result<(bool, bool), InvokeArgSetError> = vec![InvokeArgument::Boolean(true), InvokeArgument::String("hello".to_owned())].destructure_set();
+    let res: Result<(bool, bool), InvokeArgSetError> = vec![InvokeArgument::String("true".to_owned()), InvokeArgument::String("not a bool".to_owned())].destructure_set();
 
     assert_eq!(res, Err(InvokeArgSetError::TypeMismatch {arg_idx: 1}) );
   }
