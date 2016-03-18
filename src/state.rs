@@ -38,7 +38,6 @@ impl <World> Cucumber<World> {
   }
 
   pub fn find_match(&self, str: &str) -> Vec<ResponseStep> {
-    // TODO: Detangle this
     self.step_regexes.iter()
       .filter_map(|ref regex| {
         // Get captures from regex
