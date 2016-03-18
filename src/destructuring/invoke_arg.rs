@@ -65,7 +65,6 @@ impl_for_from_str!(usize);
 impl_for_from_str!(u8);
 impl_for_from_str!(u16);
 impl_for_from_str!(u32);
-impl_for_from_str!(bool);
 
 impl FromInvokeArg for String {
   type Err = ImproperInvokeArgError;
@@ -73,6 +72,24 @@ impl FromInvokeArg for String {
   fn from_invoke_arg(arg: InvokeArgument) -> Result<String, ImproperInvokeArgError> {
     match arg {
       InvokeArgument::String(val) => Ok(val),
+      _ => Err(ImproperInvokeArgError { _priv: () })
+    }
+  }
+}
+
+// NOTE: Rules for booleans are a bit unconventional to facilitiate easy use of optional captures:
+impl FromInvokeArg for bool {
+  type Err = ImproperInvokeArgError;
+
+  fn from_invoke_arg(arg: InvokeArgument) -> Result<bool, ImproperInvokeArgError> {
+    match arg {
+      InvokeArgument::None => Ok(false),
+      InvokeArgument::String(val) => {
+        match val.as_str() {
+          "false" => Ok(false),
+          _ => Ok(true)
+        }
+      },
       _ => Err(ImproperInvokeArgError { _priv: () })
     }
   }
@@ -91,12 +108,12 @@ impl FromInvokeArg for Vec<Vec<String>> {
 
 #[cfg(test)]
 mod test {
-  use super::*;
-  use request::InvokeArgument;
+  pub use super::*;
+  pub use request::InvokeArgument;
 
   #[test]
   fn wrong_type_destructure_fails_correctly() {
-    let res: Result<bool, ImproperInvokeArgError> = InvokeArgument::String("hello".to_owned()).destructure();
+    let res: Result<u32, ImproperInvokeArgError> = InvokeArgument::String("hello".to_owned()).destructure();
 
     assert_eq!(res, Err(ImproperInvokeArgError { _priv: () }));
   }
@@ -114,4 +131,39 @@ mod test {
 
     assert_eq!(res, vec![vec!["hello".to_owned()]]);
   }
+
+  mod bool {
+    use super::*;
+
+    #[test]
+    fn bool_doesnt_parse_from_table() {
+      let res: Result<bool, ImproperInvokeArgError> = InvokeArgument::Table(vec![vec!["hello".to_owned()]]).destructure();
+
+      assert_eq!(res, Err(ImproperInvokeArgError { _priv: () }));
+    }
+
+    #[test]
+    fn bool_is_false_from_none() {
+      let res: bool = InvokeArgument::None.destructure().unwrap();
+
+      assert_eq!(res, false);
+    }
+
+    #[test]
+    fn bool_is_false_string_false() {
+      let res: bool = InvokeArgument::String("false".to_owned()).destructure().unwrap();
+
+      assert_eq!(res, false);
+    }
+
+    #[test]
+    fn bool_is_true_from_other_strings() {
+      let res: bool = InvokeArgument::String("true".to_owned()).destructure().unwrap();
+      assert_eq!(res, true);
+
+      let res: bool = InvokeArgument::String("hello".to_owned()).destructure().unwrap();
+      assert_eq!(res, true);
+    }
+  }
+
 }

@@ -94,13 +94,6 @@ mod test {
   }
 
   #[test]
-  fn tuple_1_bool_conversion_fails_correctly() {
-    let res: Result<(bool,), InvokeArgSetError> = vec![InvokeArgument::String("not a bool".to_owned())].destructure_set();
-
-    assert_eq!(res, Err(InvokeArgSetError::TypeMismatch { arg_idx: 0 } ));
-  }
-
-  #[test]
   fn tuple_3_can_be_destructured() {
     let res = vec![InvokeArgument::String("hello".to_owned()), InvokeArgument::String("world".to_owned()), InvokeArgument::String("hello".to_owned())].destructure_set();
 
@@ -120,7 +113,7 @@ mod test {
 
   #[test]
   fn destructure_for_type_mismatch_fails_correctly() {
-    let res: Result<(bool, bool), InvokeArgSetError> = vec![InvokeArgument::String("true".to_owned()), InvokeArgument::String("not a bool".to_owned())].destructure_set();
+    let res: Result<(bool, u32), InvokeArgSetError> = vec![InvokeArgument::String("true".to_owned()), InvokeArgument::String("not a u32".to_owned())].destructure_set();
 
     assert_eq!(res, Err(InvokeArgSetError::TypeMismatch {arg_idx: 1}) );
   }
