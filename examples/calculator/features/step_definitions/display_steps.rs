@@ -4,8 +4,8 @@ use support::env::CalculatorWorld;
 
 #[allow(dead_code)]
 pub fn register_steps(c: &mut CucumberRegistrar<CalculatorWorld>) {
-  Then!(c; "^the (?:next )?result is (-)?(\\d+)$", |_, world: &mut CalculatorWorld, (negate, mut val): (Option<String>, i32)| {
-    if negate.is_some() { val = -val }
+  Then!(c; "^the (?:next )?result is (-)?(\\d+)$", |_, world: &mut CalculatorWorld, (negate, mut val): (bool, i32)| {
+    if negate { val = -val }
     InvokeResponse::check_eq(world.calculator.evaluate(), val)
   });
 
