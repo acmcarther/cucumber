@@ -25,6 +25,6 @@ serde_macros = { version = "*", optional = true }
 name = "calculator"
 path = "./examples/calculator/features/cuke.rs"
 
-[[example]]
+[[test]]
 name = "cuke"
 path = "./features/cuke.rs"

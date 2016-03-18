@@ -47,7 +47,7 @@ macro_rules! try_destructure {
 // NOTE: These are capitalized to follow Cucumber general conventions, rather than Rust
 #[macro_export]
 macro_rules! Given {
-  ($cuke:ident; $regex:expr, $body:expr) => {{
+  ($cuke:expr; $regex:expr, $body:expr) => {{
     use $crate::regex;
     $cuke.given(file!(), line!(), regex::build($regex), Box::new(move |cuke, world, args| {
       ($body)(cuke, world, try_destructure!(args))
@@ -57,7 +57,7 @@ macro_rules! Given {
 
 #[macro_export]
 macro_rules! When {
-  ($cuke:ident; $regex:expr, $body:expr) => {{
+  ($cuke:expr; $regex:expr, $body:expr) => {{
     use $crate::regex;
     $cuke.when(file!(), line!(), regex::build($regex), Box::new(move |cuke, world, args| {
       ($body)(cuke, world, try_destructure!(args))
@@ -67,7 +67,7 @@ macro_rules! When {
 
 #[macro_export]
 macro_rules! Then {
-  ($cuke:ident; $regex:expr, $body:expr) => {{
+  ($cuke:expr; $regex:expr, $body:expr) => {{
     use $crate::regex;
     $cuke.then(file!(), line!(), regex::build($regex), Box::new(move |cuke, world, args| {
       ($body)(cuke, world, try_destructure!(args))
