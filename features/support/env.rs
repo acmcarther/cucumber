@@ -1,11 +1,11 @@
-use cucumber::WorldRunner;
+use cucumber::state::Cucumber;
 
 pub struct CucumberWorld {
-  pub runner: WorldRunner<u32>
+  pub cucumber: Cucumber<u32>
 }
 
 impl CucumberWorld {
   pub fn new() -> CucumberWorld {
-    CucumberWorld { runner: WorldRunner::new(0) }
+    CucumberWorld { cucumber: Cucumber::new() }
   }
 }

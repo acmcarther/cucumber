@@ -59,7 +59,7 @@ impl <World> Cucumber<World> {
       .collect()
   }
 
-  pub fn invoke(&self, str: &str, world: &mut World, table: Option<Vec<Vec<String>>>) -> InvokeResponse {
+  pub fn invoke(&self, str: &str, world: &mut World, extra_arg: Option<InvokeArgument>) -> InvokeResponse {
     let mut matches = self.find_match(str);
     match matches.len() {
       0 => InvokeResponse::with_fail_message("Direct invoke matched no steps"),
@@ -69,8 +69,8 @@ impl <World> Cucumber<World> {
           .map(|arg| InvokeArgument::from_step_arg(arg))
           .collect();
 
-        if table.is_some() {
-          invoke_args.push(InvokeArgument::Table(table.unwrap()));
+        if extra_arg.is_some() {
+          invoke_args.push(extra_arg.unwrap());
         }
 
         self.step(response_step.id.parse().unwrap()).unwrap()(&self, world, invoke_args)

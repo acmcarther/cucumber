@@ -1,7 +1,7 @@
 use external_regex::Regex;
 
 #[allow(dead_code)]
-pub fn build(str: &'static str) -> Regex {
+pub fn build(str: &str) -> Regex {
   Regex::new(str).unwrap()
 }
 
