@@ -21,4 +21,3 @@ Feature: Addition
     And I input 6
     And I input -10
     Then the result is -4
-

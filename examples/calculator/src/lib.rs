@@ -117,4 +117,3 @@ impl <R: BufRead, W: Write> RWCalculator<R, W> {
     }
   }
 }
-
