@@ -9,22 +9,18 @@ default = ["serde_codegen"]
 nightly = ["serde_macros"]
 
 [build-dependencies]
-serde_codegen = { version = "0.7.0", optional = true }
-syntex = "0.29.0"
+serde_codegen = { version = "*", optional = true }
+syntex = "*"
 itertools = "*"
 
 [dependencies]
 itertools = "*"
 regex = "*"
 hyper = "*"
-serde = "0.7.0"
-serde_json = "0.7.0"
-serde_macros = { version = "0.7.0", optional = true }
+serde = "*"
+serde_json = "*"
+serde_macros = { version = "*", optional = true }
 
-[[example]]
-name = "calculator"
-path = "./examples/calculator/features/cuke.rs"
-
-[[example]]
+[[test]]
 name = "cuke"
 path = "./features/cuke.rs"

@@ -1,22 +1,30 @@
 use cucumber::definitions::registration::CucumberRegistrar;
 use cucumber::response::InvokeResponse;
-use cucumber::state::Cucumber;
+
 use support::env::CalculatorWorld;
+use calculator::CalculatorCommand;
 
 #[allow(dead_code)]
 pub fn register_steps(c: &mut CucumberRegistrar<CalculatorWorld>) {
 
-  When!(c; "^the calculator is cleared$", |cuke: &Cucumber<CalculatorWorld>, world: &mut CalculatorWorld, _| {
-    cuke.invoke("the calculator is clear", world, None)
-  });
-
-  Given!(c; "^the calculator is clear$", |_, world: &mut CalculatorWorld, _| {
+  Given!(c; "^a clear calculator$", |_, world: &mut CalculatorWorld, _| {
     world.calculator.clear();
     InvokeResponse::Success
   });
 
-  When!(c; "^the number (\\d+) is entered$", |_, world: &mut CalculatorWorld, (number,): (u32,)| {
-    world.calculator.enter(number);
+  When!(c; "^I begin adding$", |_, world: &mut CalculatorWorld, _| {
+    world.last_response = Some(world.calculator.push_command(CalculatorCommand::Add));
+    InvokeResponse::Success
+  });
+
+  When!(c; "^I begin subtracting$", |_, world: &mut CalculatorWorld, _| {
+    world.last_response = Some(world.calculator.push_command(CalculatorCommand::Minus));
+    InvokeResponse::Success
+  });
+
+  When!(c; "^I input (-)?(\\d+)$", |_, world: &mut CalculatorWorld, (negate, mut val): (Option<String>, i32)| {
+    if negate.is_some() { val = -val }
+    world.last_response = Some(world.calculator.push_command(CalculatorCommand::Number(val)));
     InvokeResponse::Success
   });
 }

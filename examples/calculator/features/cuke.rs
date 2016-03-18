@@ -1,3 +1,5 @@
+extern crate calculator;
+
 #[macro_use]
 extern crate cucumber;
 
@@ -12,6 +14,7 @@ use step_definitions::{
   display_steps
 };
 
+#[test]
 fn main() {
   let mut runner = WorldRunner::new(CalculatorWorld::new());
 
@@ -24,7 +27,6 @@ fn main() {
   let (handle, stop_rx) = server.start(Some("0.0.0.0:7878"));
 
   let status = cucumber::ruby_command()
-    .current_dir("./examples/calculator")
     .spawn()
     .unwrap_or_else(|e| { panic!("failed to execute process: {}", e) })
     .wait().unwrap();

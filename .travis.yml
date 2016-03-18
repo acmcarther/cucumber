@@ -14,4 +14,4 @@ matrix:
 
 script:
    - cargo test
-   - cargo run --example calculator
+   - cd example/calculator; cargo test

@@ -4,11 +4,15 @@ use support::env::CalculatorWorld;
 
 #[allow(dead_code)]
 pub fn register_steps(c: &mut CucumberRegistrar<CalculatorWorld>) {
-  Then!(c; "^the display( doesn't)? says? (\\d+)", |_, world: &mut CalculatorWorld, (negate, number): (Option<String>, i32)| {
-    if negate.is_none() {
-      InvokeResponse::check_eq(world.calculator.display_contents(), number)
-    } else {
-      InvokeResponse::check_not_eq(world.calculator.display_contents(), number)
+  Then!(c; "^the (?:next )?result is (-)?(\\d+)$", |_, world: &mut CalculatorWorld, (negate, mut val): (Option<String>, i32)| {
+    if negate.is_some() { val = -val }
+    InvokeResponse::check_eq(world.calculator.evaluate(), val)
+  });
+
+  Then!(c; "^the last message includes \"(.*)\"$", |_, world: &mut CalculatorWorld, (message,): (String,)| {
+    match world.last_response {
+      None => InvokeResponse::with_fail_message("No last message"),
+      Some(ref msg) => InvokeResponse::check(msg.to_string().contains(&message))
     }
   });
 }

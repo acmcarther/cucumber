@@ -9,6 +9,7 @@ use cucumber::{ WorldRunner, Server };
 use support::env::CucumberWorld;
 use step_definitions::cucumber_steps;
 
+#[test]
 fn main() {
   let mut runner = WorldRunner::new(CucumberWorld::new());
 
