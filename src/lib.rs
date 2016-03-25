@@ -1,24 +1,18 @@
-#![cfg_attr(feature = "serde_macros", feature(custom_derive, plugin))]
-#![cfg_attr(feature = "serde_macros", plugin(serde_macros))]
+extern crate cucumber_state;
+extern crate cucumber_server;
+extern crate cucumber_runner;
 
-extern crate regex as external_regex;
-extern crate hyper;
-extern crate serde;
-extern crate serde_json;
-extern crate itertools;
+extern crate cucumber_definitions;
 
-mod server;
+extern crate cucumber_event;
+extern crate cucumber_regex;
 
-pub mod definitions;
-pub mod destructuring;
-pub mod request;
-pub mod response;
-pub mod runner;
-pub mod regex;
-pub mod state;
-
-pub use runner::WorldRunner;
-pub use server::Server;
+pub use cucumber_state as state;
+pub use cucumber_server as server;
+pub use cucumber_runner as runner;
+pub use cucumber_definitions as definitions;
+pub use cucumber_event as event;
+pub use cucumber_regex as regex;
 
 use std::process::{Command, Stdio};
 
@@ -28,3 +22,57 @@ pub fn ruby_command() -> Command {
   command.stderr(Stdio::inherit());
   command
 }
+
+#[macro_export]
+macro_rules! try_destructure {
+  ($r: ident) => ({
+    use $crate::event::response::InvokeResponse;
+    use $crate::definitions::destructuring::{DestructurableSet, InvokeArgSetError};
+
+    match $r.destructure_set() {
+      Ok(e) => e,
+      Err(error) => {
+        match error {
+          InvokeArgSetError::TypeMismatch {arg_idx} => {
+            return InvokeResponse::with_fail_message(format!("Argument in position [{}] did not have the correct type or was unparseable", arg_idx))
+          },
+          InvokeArgSetError::ArgCountMismatch {expected, actual} => {
+            return InvokeResponse::with_fail_message(format!("Expected [{}] arguments, but found [{}] in step definition", expected, actual))
+          }
+        }
+      }
+    }
+  })
+}
+
+// NOTE: These are capitalized to follow Cucumber general conventions, rather than Rust
+#[macro_export]
+macro_rules! Given {
+  ($cuke:expr; $regex:expr, $body:expr) => {{
+    use $crate::regex;
+    $cuke.given(file!(), line!(), regex::build($regex), Box::new(move |cuke, world, args| {
+      ($body)(cuke, world, try_destructure!(args))
+    }))
+  }}
+}
+
+#[macro_export]
+macro_rules! When {
+  ($cuke:expr; $regex:expr, $body:expr) => {{
+    use $crate::regex;
+    $cuke.when(file!(), line!(), regex::build($regex), Box::new(move |cuke, world, args| {
+      ($body)(cuke, world, try_destructure!(args))
+    }))
+  }}
+}
+
+#[macro_export]
+macro_rules! Then {
+  ($cuke:expr; $regex:expr, $body:expr) => {{
+    use $crate::regex;
+    $cuke.then(file!(), line!(), regex::build($regex), Box::new(move |cuke, world, args| {
+      ($body)(cuke, world, try_destructure!(args))
+    }))
+  }}
+}
+

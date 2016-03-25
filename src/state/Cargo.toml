@@ -1,0 +1,9 @@
+[package]
+name = "cucumber_state"
+version = "0.1.0"
+authors = ["Alex McArther <acmcarther@gmail.com>"]
+
+[dependencies]
+itertools = "*"
+regex = "*"
+cucumber_event = { path = "../event" }

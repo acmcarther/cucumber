@@ -1,5 +1,5 @@
 use cucumber::definitions::registration::CucumberRegistrar;
-use cucumber::response::InvokeResponse;
+use cucumber::event::response::InvokeResponse;
 use support::env::CalculatorWorld;
 
 #[allow(dead_code)]

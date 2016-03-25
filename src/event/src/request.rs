@@ -102,18 +102,18 @@ pub enum InvokeArgument {
   Table(Vec<Vec<String>>)
 }
 
-impl Deserialize for InvokeArgument {
-  fn deserialize<D: Deserializer>(d: &mut D) -> Result<Self, D::Error> {
-    d.deserialize(InvokeArgumentVisitor)
-  }
-}
-
 impl InvokeArgument {
   pub fn from_step_arg(arg: StepArg) -> InvokeArgument {
     match arg.val {
       Some(v) => InvokeArgument::String(v),
       None => InvokeArgument::None
     }
+  }
+}
+
+impl Deserialize for InvokeArgument {
+  fn deserialize<D: Deserializer>(d: &mut D) -> Result<Self, D::Error> {
+    d.deserialize(InvokeArgumentVisitor)
   }
 }
 

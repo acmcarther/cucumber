@@ -6,7 +6,8 @@ extern crate cucumber;
 mod step_definitions;
 mod support;
 
-use cucumber::{ WorldRunner, Server };
+use cucumber::runner::WorldRunner;
+use cucumber::server::Server;
 
 use support::env::CalculatorWorld;
 use step_definitions::{

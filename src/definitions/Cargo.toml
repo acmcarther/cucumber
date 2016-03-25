@@ -1,0 +1,12 @@
+[package]
+name = "cucumber_definitions"
+version = "0.1.0"
+authors = ["Alex McArther <acmcarther@gmail.com>"]
+
+[dependencies]
+regex = "*"
+serde = "*"
+serde_json = "*"
+cucumber_event = { path = "../event" }
+cucumber_state = { path = "../state" }
+cucumber_regex = { path = "../regex" }

@@ -1,8 +1,12 @@
-use external_regex::Regex;
-use state::Cucumber;
-use request::Request;
-use response::{Response, StepMatchesResponse};
-use definitions::Step;
+extern crate regex;
+extern crate cucumber_state as state;
+extern crate cucumber_event as event;
+extern crate cucumber_definitions as definitions;
+
+use regex::Regex;
+use state::{Cucumber, Step};
+use event::request::Request;
+use event::response::{Response, StepMatchesResponse};
 use definitions::registration::CucumberRegistrar;
 
 use std::str::FromStr;
@@ -85,31 +89,4 @@ impl <World> CucumberRegistrar<World> for WorldRunner<World> {
   fn then(&mut self, file: &str, line: u32, regex: Regex, step: Step<World>) {
     self.cuke.then(file, line, regex, step)
   }
-}
-
-
-#[cfg(test)]
-mod test {
-  use super::*;
-  use response::InvokeResponse;
-  use definitions::registration::CucumberRegistrar;
-
-  use regex;
-
-  #[test]
-  fn runner_instantiates() {
-    let _: WorldRunner<u32> = WorldRunner::new(0);
-  }
-
-  #[test]
-  fn runner_registers_steps() {
-    let world: u32 = 0;
-    let mut runner = WorldRunner::new(world);
-
-    runner.when(file!(), line!(), regex::build("^I increment my world$"), Box::new(move |_, world, _| {
-      *world = *world + 1;
-      InvokeResponse::Success
-    }));
-  }
-
 }

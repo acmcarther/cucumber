@@ -1,12 +1,23 @@
-pub use external_regex::{Regex, Captures};
+extern crate regex;
+
+extern crate cucumber_event as event;
+
+pub use regex::{Regex, Captures};
 
 use std::collections::HashMap;
 
-use response::InvokeResponse;
-use response::StepArg;
-use response::Step as ResponseStep;
-use request::InvokeArgument;
-use definitions::{Step, StepId};
+use event::response::InvokeResponse;
+use event::response::StepArg;
+use event::response::Step as ResponseStep;
+use event::request::InvokeArgument;
+
+pub trait SendableStep<World>: Send + Fn(&Cucumber<World>, &mut World, Vec<InvokeArgument>) -> InvokeResponse {}
+
+impl<T, World> SendableStep<World> for T where T: Send + Fn(&Cucumber<World>, &mut World, Vec<InvokeArgument>) -> InvokeResponse {}
+
+pub type Step<World> = Box<SendableStep<World, Output=InvokeResponse>>;
+
+pub type StepId = u32;
 
 pub struct Cucumber<World> {
   step_regexes: Vec<Regex>,

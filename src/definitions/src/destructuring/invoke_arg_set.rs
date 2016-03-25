@@ -1,4 +1,4 @@
-use request::InvokeArgument;
+use event::request::InvokeArgument;
 use super::FromInvokeArg;
 
 pub trait FromInvokeArgSet: Sized {

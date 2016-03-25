@@ -1,4 +1,4 @@
-use request::InvokeArgument;
+use event::request::InvokeArgument;
 
 pub trait Destructurable: Sized {
   fn destructure<T: FromInvokeArg>(self) -> Result<T, T::Err>;

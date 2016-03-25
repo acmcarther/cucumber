@@ -4,7 +4,8 @@ extern crate cucumber;
 mod step_definitions;
 mod support;
 
-use cucumber::{ WorldRunner, Server };
+use cucumber::server::Server;
+use cucumber::runner::WorldRunner;
 
 use support::env::CucumberWorld;
 use step_definitions::{

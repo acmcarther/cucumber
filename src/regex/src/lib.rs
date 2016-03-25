@@ -1,4 +1,6 @@
-use external_regex::Regex;
+extern crate regex;
+
+use regex::Regex;
 
 #[allow(dead_code)]
 pub fn build(str: &str) -> Regex {

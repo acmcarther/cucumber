@@ -1,3 +1,8 @@
+extern crate serde_json;
+
+extern crate cucumber_runner as runner;
+extern crate cucumber_event as event;
+
 use std::io::{BufRead, BufReader, Write};
 use std::sync::mpsc::{Sender, channel, TryRecvError};
 use std::sync::{Barrier, Arc};
@@ -5,11 +10,9 @@ use std::time::Duration;
 use std::thread::{self, JoinHandle};
 use std::net::TcpListener;
 
-use serde_json;
-
 use runner::CommandRunner;
 
-use request::Request;
+use event::request::Request;
 
 #[allow(dead_code)]
 pub struct Server<R: CommandRunner + Send> {
