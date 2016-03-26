@@ -15,3 +15,10 @@ matrix:
 script:
    - cargo test
    - cd ./examples/calculator; cargo test
+
+
+cache:
+  bundler: true
+  directories:
+    - $HOME/.cargo/
+    # TODO: cache target when per-compiler caching is available

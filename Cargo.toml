@@ -14,7 +14,3 @@ cucumber_regex = { path = "./src/regex" }
 [[test]]
 name = "cuke"
 path = "./features/cuke.rs"
-
-[[example]]
-name = "calculator"
-path = "./examples/calculator/features/cuke.rs"

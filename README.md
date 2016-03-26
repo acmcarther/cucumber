@@ -2,14 +2,12 @@
 
 [![Build Status](https://travis-ci.org/acmcarther/cucumber-rs.svg?branch=master)](https://travis-ci.org/acmcarther/cucumber-rs)
 
-## Running Cucumber
-cargo test
+### NOTE:
+This crate is super experimental! Keep that in mind, and if you use it, please feel free to drop issues or comments in this repo.
 
-## Running Example
-cargo run --example calculator
+## Running Local Cucumber Tests
+`cargo test`
 
-## TODO:
-- Proper treatment of tags
-- Clean up
-- Niceties for the syntax
-- Helpers for common setup
+## Running Example Cucumber Tests
+Inside examples/calculator
+`cargo test`
