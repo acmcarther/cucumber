@@ -1,9 +1,13 @@
-pub extern crate cucumber_state;
-pub extern crate cucumber_server;
-pub extern crate cucumber_runner;
-pub extern crate cucumber_definitions;
-pub extern crate cucumber_event;
-pub extern crate cucumber_regex;
+
+
+// NOTE: The below crates will need pub in beta and nightly
+extern crate cucumber_state;
+extern crate cucumber_server;
+extern crate cucumber_runner;
+extern crate cucumber_definitions;
+extern crate cucumber_event;
+extern crate cucumber_regex;
+extern crate itertools;
 
 pub use cucumber_state as state;
 pub use cucumber_server as server;
@@ -12,14 +16,12 @@ pub use cucumber_definitions as definitions;
 pub use cucumber_event as event;
 pub use cucumber_regex as regex;
 
-use std::process::{Command, Stdio};
+mod launcher;
 
-pub fn ruby_command() -> Command {
-  let mut command = Command::new("cucumber");
-  command.stdout(Stdio::inherit());
-  command.stderr(Stdio::inherit());
-  command
-}
+pub use launcher::{
+  start,
+  ruby_command
+};
 
 #[macro_export]
 macro_rules! try_destructure {

@@ -10,6 +10,7 @@ cucumber_runner = { path = "./src/runner" }
 cucumber_definitions = { path = "./src/definitions" }
 cucumber_event = { path = "./src/event" }
 cucumber_regex = { path = "./src/regex" }
+itertools = "*"
 
 [[test]]
 name = "cuke"
