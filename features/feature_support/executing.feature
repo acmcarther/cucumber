@@ -4,28 +4,28 @@ Feature: Executing Features
     Given a project if I don't already have one
     And the steps
       """
-        Given!(c; "^a passing given step$", |_, _, _| {
+        Given!(c, "^a passing given step$", |_, _, _| {
           InvokeResponse::Success
         });
 
-        When!(c; "^a passing when step$", |_, _, _| {
+        When!(c, "^a passing when step$", |_, _, _| {
           InvokeResponse::Success
         });
 
-        Then!(c; "^a passing then step$", |_, _, _| {
+        Then!(c, "^a passing then step$", |_, _, _| {
           InvokeResponse::Success
         });
 
-        Given!(c; "^a failing given step$", |_, _, _| {
-          InvokeResponse::with_fail_message("Given Step Failed")
+        Given!(c, "^a failing given step$", |_, _, _| {
+          InvokeResponse::fail_from_str("Given Step Failed")
         });
 
-        When!(c; "^a failing when step$", |_, _, _| {
-          InvokeResponse::with_fail_message("When Step Failed")
+        When!(c, "^a failing when step$", |_, _, _| {
+          InvokeResponse::fail_from_str("When Step Failed")
         });
 
-        Then!(c; "^a failing then step$", |_, _, _| {
-          InvokeResponse::with_fail_message("Then Step Failed")
+        Then!(c, "^a failing then step$", |_, _, _| {
+          InvokeResponse::fail_from_str("Then Step Failed")
         });
       """
     Then the project compiles

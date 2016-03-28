@@ -134,25 +134,25 @@ pub enum InvokeResponse {
 }
 
 impl InvokeResponse {
-  pub fn pending<T: ToString>(val: T) -> InvokeResponse {
-    InvokeResponse::Pending(val.to_string())
+  pub fn pending_from_str(val: &str) -> InvokeResponse {
+    InvokeResponse::Pending(val.to_owned())
   }
 
-  pub fn with_fail_message<T: ToString>(val: T) -> InvokeResponse {
-    InvokeResponse::Fail(FailMessage::new(val.to_string()))
+  pub fn fail_from_str(val: &str) -> InvokeResponse {
+    InvokeResponse::Fail(FailMessage::new(val.to_owned()))
   }
 
   pub fn check_eq<T: PartialEq + Debug>(first: T, second: T) -> InvokeResponse {
     if first == second {
       InvokeResponse::Success
     } else {
-      InvokeResponse::with_fail_message(format!("Value [{:?}] was not equal to [{:?}]", first, second))
+      InvokeResponse::fail_from_str(&format!("Value [{:?}] was not equal to [{:?}]", first, second))
     }
   }
 
   pub fn check_not_eq<T: PartialEq + Debug>(first: T, second: T) -> InvokeResponse {
     if first == second {
-      InvokeResponse::with_fail_message(format!("Value [{:?}] was equal to [{:?}]", first, second))
+      InvokeResponse::fail_from_str(&format!("Value [{:?}] was equal to [{:?}]", first, second))
     } else {
       InvokeResponse::Success
     }
@@ -162,7 +162,7 @@ impl InvokeResponse {
     if b {
       InvokeResponse::Success
     } else {
-      InvokeResponse::with_fail_message("invoke response check failed")
+      InvokeResponse::fail_from_str("invoke response check failed")
     }
   }
 
@@ -170,7 +170,7 @@ impl InvokeResponse {
     if b {
       InvokeResponse::Success
     } else {
-      InvokeResponse::with_fail_message(fail_msg)
+      InvokeResponse::fail_from_str(fail_msg)
     }
   }
 
@@ -200,7 +200,7 @@ mod test {
     let not_eq = InvokeResponse::check_eq(1, 2);
 
     assert_eq!(eq, InvokeResponse::Success);
-    assert_eq!(not_eq, InvokeResponse::with_fail_message("Value [1] was not equal to [2]"));
+    assert_eq!(not_eq, InvokeResponse::fail_from_str("Value [1] was not equal to [2]"));
   }
 
   #[test]
@@ -208,7 +208,7 @@ mod test {
     let eq = InvokeResponse::check_not_eq(1, 1);
     let not_eq = InvokeResponse::check_not_eq(1, 2);
 
-    assert_eq!(eq, InvokeResponse::with_fail_message("Value [1] was equal to [1]"));
+    assert_eq!(eq, InvokeResponse::fail_from_str("Value [1] was equal to [1]"));
     assert_eq!(not_eq, InvokeResponse::Success);
   }
 
@@ -218,7 +218,7 @@ mod test {
     let f = InvokeResponse::check(false);
 
     assert_eq!(t, InvokeResponse::Success);
-    assert_eq!(f, InvokeResponse::with_fail_message("invoke response check failed"));
+    assert_eq!(f, InvokeResponse::fail_from_str("invoke response check failed"));
   }
 
   #[test]
@@ -227,7 +227,7 @@ mod test {
     let f = InvokeResponse::expect(false, "Evaluated message");
 
     assert_eq!(t, InvokeResponse::Success);
-    assert_eq!(f, InvokeResponse::with_fail_message("Evaluated message"));
+    assert_eq!(f, InvokeResponse::fail_from_str("Evaluated message"));
   }
 
   #[test]
@@ -240,20 +240,20 @@ mod test {
 
     // T & F = F
     assert_eq!(
-      InvokeResponse::with_fail_message("msg"),
-      InvokeResponse::Success.and(InvokeResponse::with_fail_message("msg"))
+      InvokeResponse::fail_from_str("msg"),
+      InvokeResponse::Success.and(InvokeResponse::fail_from_str("msg"))
     );
 
     // F & T = F
     assert_eq!(
-      InvokeResponse::with_fail_message("msg"),
-      InvokeResponse::with_fail_message("msg").and(InvokeResponse::Success)
+      InvokeResponse::fail_from_str("msg"),
+      InvokeResponse::fail_from_str("msg").and(InvokeResponse::Success)
     );
 
     // F1 & F2 = F1
     assert_eq!(
-      InvokeResponse::with_fail_message("msg1"),
-      InvokeResponse::with_fail_message("msg1").and(InvokeResponse::with_fail_message("msg2"))
+      InvokeResponse::fail_from_str("msg1"),
+      InvokeResponse::fail_from_str("msg1").and(InvokeResponse::fail_from_str("msg2"))
     );
   }
 
@@ -268,19 +268,19 @@ mod test {
     // T & F = T
     assert_eq!(
       InvokeResponse::Success,
-      InvokeResponse::Success.or(InvokeResponse::with_fail_message("msg"))
+      InvokeResponse::Success.or(InvokeResponse::fail_from_str("msg"))
     );
 
     // F & T = T
     assert_eq!(
       InvokeResponse::Success,
-      InvokeResponse::with_fail_message("msg").or(InvokeResponse::Success)
+      InvokeResponse::fail_from_str("msg").or(InvokeResponse::Success)
     );
 
     // F1 & F2 = F2
     assert_eq!(
-      InvokeResponse::with_fail_message("msg2"),
-      InvokeResponse::with_fail_message("msg1").or(InvokeResponse::with_fail_message("msg2"))
+      InvokeResponse::fail_from_str("msg2"),
+      InvokeResponse::fail_from_str("msg1").or(InvokeResponse::fail_from_str("msg2"))
     );
   }
 
@@ -301,7 +301,7 @@ mod test {
 
   #[test]
   fn it_serializes_invoke_pending() {
-    let response = Response::Invoke(InvokeResponse::Pending("stuff isn't done".to_owned()));
+    let response = Response::Invoke(InvokeResponse::pending_from_str("stuff isn't done"));
     let string = serde_json::to_string(&response);
     assert_eq!(string.unwrap(), "[\"pending\",\"stuff isn't done\"]");
   }
@@ -315,7 +315,7 @@ mod test {
 
   #[test]
   fn it_serializes_invoke_fail() {
-    let response = Response::Invoke(InvokeResponse::Fail(FailMessage{ message: "stuff is broken".to_owned(), exception: "".to_owned()}));
+    let response = Response::Invoke(InvokeResponse::fail_from_str("stuff is broken"));
     let string = serde_json::to_string(&response);
     assert_eq!(string.unwrap(), "[\"fail\",{\"message\":\"stuff is broken\",\"exception\":\"\"}]");
   }

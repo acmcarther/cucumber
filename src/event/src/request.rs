@@ -103,6 +103,10 @@ pub enum InvokeArgument {
 }
 
 impl InvokeArgument {
+  pub fn from_str(arg: &str) -> InvokeArgument {
+    InvokeArgument::String(arg.to_owned())
+  }
+
   pub fn from_step_arg(arg: StepArg) -> InvokeArgument {
     match arg.val {
       Some(v) => InvokeArgument::String(v),
@@ -123,7 +127,7 @@ impl Visitor for InvokeArgumentVisitor {
   type Value = InvokeArgument;
 
   fn visit_str<E: SerdeError>(&mut self, v: &str) -> Result<InvokeArgument, E> {
-    Ok(InvokeArgument::String(v.to_owned()))
+    Ok(InvokeArgument::from_str(v))
   }
 
   fn visit_unit<E: SerdeError>(&mut self) -> Result<InvokeArgument, E> {
@@ -171,7 +175,7 @@ mod test {
     println!("{:?}", res);
     match res.unwrap() {
       Request::Invoke(payload) => {
-        assert_eq!(payload, InvokeRequest {id: "1".to_owned(), args: vec!(InvokeArgument::String("wired".to_owned()))})
+        assert_eq!(payload, InvokeRequest {id: "1".to_owned(), args: vec!(InvokeArgument::from_str("wired"))})
       },
       _ => panic!("result was not Invoke type")
     }
@@ -185,7 +189,7 @@ mod test {
     match res.unwrap() {
       Request::Invoke(payload) => {
         assert_eq!(payload, InvokeRequest {id: "1".to_owned(), args: vec!(
-              InvokeArgument::String("we're".to_owned()),
+              InvokeArgument::from_str("we're"),
               InvokeArgument::Table(vec!(vec!("wired".to_owned()), vec!("high".to_owned()), vec!("happy".to_owned())))
               )})
       },

@@ -76,7 +76,7 @@ impl <World> Cucumber<World> {
   pub fn invoke(&self, str: &str, world: &mut World, extra_arg: Option<InvokeArgument>) -> InvokeResponse {
     let mut matches = self.find_match(str);
     match matches.len() {
-      0 => InvokeResponse::with_fail_message("Direct invoke matched no steps"),
+      0 => InvokeResponse::fail_from_str("Direct invoke matched no steps"),
       1 => {
         let response_step = matches.pop().unwrap();
         let mut invoke_args: Vec<InvokeArgument> = response_step.args.into_iter()
@@ -89,7 +89,7 @@ impl <World> Cucumber<World> {
 
         self.step(response_step.id.parse().unwrap()).unwrap()(&self, world, invoke_args)
       },
-      _ => InvokeResponse::with_fail_message("Direct invoke matched more than one step")
+      _ => InvokeResponse::fail_from_str("Direct invoke matched more than one step")
     }
   }
 
@@ -140,7 +140,7 @@ mod test {
     let mut cucumber: Cucumber<World> = Cucumber::new();
     cucumber.insert_step("file:line".to_owned(), regex::build("^example$"), Box::new(|_, _, _| { InvokeResponse::Success }));
     cucumber.insert_step("file:line".to_owned(), regex::build("^ex"), Box::new(|_, _, _| { InvokeResponse::Success }));
-    assert_eq!(cucumber.invoke("example", &mut world, None), InvokeResponse::with_fail_message("Direct invoke matched more than one step"));
+    assert_eq!(cucumber.invoke("example", &mut world, None), InvokeResponse::fail_from_str("Direct invoke matched more than one step"));
   }
 
   #[test]
@@ -150,7 +150,7 @@ mod test {
     let mut world = 0;
 
     let cucumber: Cucumber<World> = Cucumber::new();
-    assert_eq!(cucumber.invoke("example", &mut world, None), InvokeResponse::with_fail_message("Direct invoke matched no steps"));
+    assert_eq!(cucumber.invoke("example", &mut world, None), InvokeResponse::fail_from_str("Direct invoke matched no steps"));
   }
 
   #[test]

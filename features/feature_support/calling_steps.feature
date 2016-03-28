@@ -4,11 +4,11 @@ Feature: Calling steps within steps
     Given a project if I don't already have one
     And the steps
       """
-        When!(c; "^I get invoked indirectly$", |_, _, _| {
-          InvokeResponse::with_fail_message("Indirect step got invoked!")
+        When!(c, "^I get invoked indirectly$", |_, _, _| {
+          InvokeResponse::fail_from_str("Indirect step got invoked!")
         });
 
-        When!(c; "^I invoke a step indirectly$", |cuke: &Cucumber<u32>, world: &mut u32, _| {
+        When!(c, "^I invoke a step indirectly$", |cuke: &Cucumber<u32>, world: &mut u32, _| {
           cuke.invoke("I get invoked indirectly", world, None)
         });
       """
