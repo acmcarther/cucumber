@@ -1,0 +1,15 @@
+[package]
+name = "simple"
+version = "0.0.1"
+authors = ["Alex McArther <acmcarther@gmail.com>"]
+
+[dev-dependencies]
+cucumber = { path = "../../" }
+
+[[bin]]
+name = "simple"
+path = "src/bin.rs"
+
+[[test]]
+name = "cuke"
+path = "./features/cuke.rs"

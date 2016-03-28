@@ -15,10 +15,13 @@ matrix:
 script:
    - cargo test
 
+   # Bootstrap simple's cache with cucumber's cache
+   - cp ./target/ ./examples/simple/target/ -r
    # Bootstrap example's cache with cucumber's cache
    - cp ./target/ ./examples/calculator/target/ -r
 
-   - cd ./examples/calculator && cargo test
+   - (cd ./examples/simple && cargo test)
+   - (cd ./examples/calculator && cargo test)
 
 
 cache:

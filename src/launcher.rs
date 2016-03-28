@@ -20,7 +20,11 @@ pub fn start<W: Send + 'static>(world: W, register_fns: &[&Fn(&mut CucumberRegis
     .unwrap_or_else(|e| { panic!("failed to execute process: {}", e) })
     .wait().unwrap();
 
-  handle.join().unwrap();
+  // NOTE: Join disabled because of edge case when having zero tests
+  //   In that case, ruby cuke will not make tcp connection. It is
+  //   so far impossible to break from tcp::accept, so we must kill
+  // TODO: Investigate MIO to resolve this
+  // handle.join().unwrap();
 
   process::exit(status.code().unwrap());
 }
