@@ -25,4 +25,4 @@ cache:
   bundler: true
   directories:
     - $HOME/.cargo/
-    # TODO: cache target when per-compiler caching is available
+    # TODO: cache /target when per-compiler caching is available
