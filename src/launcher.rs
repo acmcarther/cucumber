@@ -5,6 +5,7 @@ use itertools::Itertools;
 
 use std::process::{self, Command, Stdio};
 
+#[allow(unused_variables)]
 pub fn start<W: Send + 'static>(world: W, register_fns: &[&Fn(&mut CucumberRegistrar<W>)]) {
   let mut runner = WorldRunner::new(world);
 
