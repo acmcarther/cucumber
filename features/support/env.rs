@@ -1,11 +1,10 @@
-use cucumber::state::Cucumber;
-
 pub struct CucumberWorld {
-  pub cucumber: Cucumber<u32>
+  pub current_project: Option<super::fs::Project>,
+  pub execute_result: Option<Result<String, String>>,
 }
 
 impl CucumberWorld {
   pub fn new() -> CucumberWorld {
-    CucumberWorld { cucumber: Cucumber::new() }
+    CucumberWorld { current_project: None, execute_result: None }
   }
 }

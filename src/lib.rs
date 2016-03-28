@@ -20,6 +20,7 @@ mod launcher;
 
 pub use launcher::{
   start,
+  start_with_addr,
   ruby_command
 };
 

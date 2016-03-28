@@ -164,6 +164,14 @@ impl InvokeResponse {
       InvokeResponse::with_fail_message("invoke response check failed")
     }
   }
+
+  pub fn expect(b: bool, fail_msg: &str) -> InvokeResponse {
+    if b {
+      InvokeResponse::Success
+    } else {
+      InvokeResponse::with_fail_message(fail_msg)
+    }
+  }
 }
 
 #[cfg(test)]

@@ -1,23 +1,27 @@
 #[macro_use]
 extern crate cucumber;
 
+extern crate tempdir;
+
 mod step_definitions;
 mod support;
 
 use support::env::CucumberWorld;
 
 use step_definitions::{
-  registration_steps,
-  matcher_steps
+  project_steps
 };
 
 #[test]
-fn main() {
+fn cuke() {
   cucumber::start(
     CucumberWorld::new(),
     &[
-      &registration_steps::register_steps,
-      &matcher_steps::register_steps,
+      &project_steps::register_steps,
     ]
   );
+}
+
+fn main() {
+  cuke()
 }
