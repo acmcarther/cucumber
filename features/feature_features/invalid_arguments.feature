@@ -9,7 +9,7 @@ Feature: Invalid argument types
           InvokeResponse::Success
         });
 
-        Given!(c, "^another step with unparsable table arg$", |_, _, (b,): (bool,)| {
+        Given!(c, "^another step with unparseable table arg:$", |_, _, (s,): (String,)| {
           // Not reachable
           InvokeResponse::Success
         });
@@ -35,7 +35,7 @@ Feature: Invalid argument types
       """
         Feature: I do a thing
           Scenario: The thing works
-            Given another step with unparseable table arg
+            Given another step with unparseable table arg:
               | 1 | 2 | 3 |
       """
     Then the feature fails with "Argument in position [0] did not have the correct type or was unparseable"
