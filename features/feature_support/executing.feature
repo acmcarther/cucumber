@@ -39,7 +39,7 @@ Feature: Executing Features
             When a passing when step
             Then a passing then step
       """
-    Then the feature passes
+    Then the feature passes with no undefined steps
 
   Scenario Outline: A step fails
     When the following feature is executed

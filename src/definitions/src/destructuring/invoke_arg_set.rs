@@ -36,8 +36,7 @@ macro_rules! auto_define_for_tuple {
         //   Normally, this could be known statically, but macro can't count type args
         let mut counter = 0;
 
-        Ok((
-          $({
+        Ok(( $({
             let res =
               $t::from_invoke_arg(arg_iter.next().unwrap())
                 .map_err(|_| InvokeArgSetError::TypeMismatch {arg_idx: counter});
@@ -73,7 +72,7 @@ auto_define_for_tuple!(12; [A, B, C, D, E, F, G, H, I, J, K, L]);
 #[cfg(test)]
 mod test {
   use super::*;
-  use request::InvokeArgument;
+  use event::request::InvokeArgument;
 
   #[test]
   fn tuple_1_string_can_be_destructured() {

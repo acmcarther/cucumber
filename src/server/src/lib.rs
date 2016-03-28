@@ -123,8 +123,8 @@ mod test {
   use std::io::BufReader;
   use std::io::BufRead;
 
-  use request::Request;
-  use response::{Response, InvokeResponse, StepMatchesResponse};
+  use event::request::Request;
+  use event::response::{Response, InvokeResponse, StepMatchesResponse};
 
   #[test]
   fn it_makes_a_server() {

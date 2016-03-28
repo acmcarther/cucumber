@@ -8,6 +8,9 @@ build = "build.rs"
 default = ["serde_codegen"]
 nightly = ["serde_macros"]
 
+[dev-dependencies]
+serde_json = "*"
+
 [build-dependencies]
 serde_codegen = { version = "*", optional = true }
 syntex = "*"

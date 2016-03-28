@@ -57,6 +57,11 @@ pub fn register_steps(c: &mut CucumberRegistrar<CucumberWorld>) {
 
   });
 
+  Then!(c; "^the feature passes with no undefined steps$", |cuke: &Cucumber<CucumberWorld>, world: &mut CucumberWorld, _| {
+    cuke.invoke("the feature passes", world, None)
+      .and(cuke.invoke("the feature reports no undefined steps", world, None))
+  });
+
   Then!(c; "^the feature passes$", |_, world: &mut CucumberWorld, _| {
     match world.execute_result {
       None => InvokeResponse::with_fail_message("Expected there to be an execute result but there wasn't one"),
@@ -80,6 +85,14 @@ pub fn register_steps(c: &mut CucumberRegistrar<CucumberWorld>) {
       None => InvokeResponse::with_fail_message("Expected there to be an execute result but there wasn't one"),
       Some(Err(_)) => InvokeResponse::with_fail_message("Expected scenario to pass (to retrieve an undefined step) but it failed"),
       Some(Ok(ref output)) => InvokeResponse::expect(output.contains("1 undefined"), "Expected scenario output to contain exactly one undefined step")
+    }
+  });
+
+  Then!(c; "^the feature reports no undefined steps$", |_, world: &mut CucumberWorld, _| {
+    match world.execute_result {
+      None => InvokeResponse::with_fail_message("Expected there to be an execute result but there wasn't one"),
+      Some(Err(_)) => InvokeResponse::with_fail_message("Expected scenario to pass (to retrieve an undefined step) but it failed"),
+      Some(Ok(ref output)) => InvokeResponse::expect(!output.contains(" undefined"), &format!("Expected scenario output to contain no undefined steps, but it contained some: {}", output))
     }
   });
 

@@ -23,13 +23,10 @@ impl <World> CucumberRegistrar<World> for Cucumber<World> {
 
 #[cfg(test)]
 mod test {
-  use super::*;
-  use state::Cucumber;
+  /*
   use response::{Step,  InvokeResponse, StepArg};
 
-  use regex;
 
-  /*
   #[test]
   fn cuke_add_step() {
     type World = u32;

@@ -31,15 +31,15 @@ Feature: Step argument type inference
       """
         Feature: I do a thing
           Scenario: The thing works
-            Given a step with optional args: optional
+            Given a step with optional arg: optional
             Given a step with number arg: 10
             Given a step with string arg: "test"
             Given a step with docstring arg:
               \"\"\"
-              test
+              docstring
               \"\"\"
             Given a step with table arg:
               | 1 | 2 | 3 |
       """
-    Then the feature passes
+    Then the feature passes with no undefined steps
 

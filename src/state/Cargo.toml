@@ -7,3 +7,4 @@ authors = ["Alex McArther <acmcarther@gmail.com>"]
 itertools = "*"
 regex = "*"
 cucumber_event = { path = "../event" }
+cucumber_regex = { path = "../regex" }

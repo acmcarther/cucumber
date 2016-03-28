@@ -2,6 +2,9 @@ extern crate regex;
 
 extern crate cucumber_event as event;
 
+#[cfg(test)]
+extern crate cucumber_regex;
+
 pub use regex::{Regex, Captures};
 
 use std::collections::HashMap;
@@ -98,9 +101,9 @@ impl <World> Cucumber<World> {
 #[cfg(test)]
 mod test {
   use super::*;
-  use regex;
-  use response::{InvokeResponse, StepArg};
-  use response::Step as ResponseStep;
+  use cucumber_regex as regex;
+  use event::response::{InvokeResponse, StepArg};
+  use event::response::Step as ResponseStep;
 
   #[test]
   fn cuke_instantiates() {

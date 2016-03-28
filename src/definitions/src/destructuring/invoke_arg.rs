@@ -109,7 +109,7 @@ impl FromInvokeArg for Vec<Vec<String>> {
 #[cfg(test)]
 mod test {
   pub use super::*;
-  pub use request::InvokeArgument;
+  pub use event::request::InvokeArgument;
 
   #[test]
   fn wrong_type_destructure_fails_correctly() {

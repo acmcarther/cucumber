@@ -13,6 +13,15 @@ matrix:
     - rust: nightly
 
 script:
+   # Run Submodule unit tests
+   # TODO: Clean this up: it needs to be exposed as a single command for developers
+   - (cd ./src/definitions && cargo test)
+   - (cd ./src/event && cargo test)
+   - (cd ./src/regex && cargo test)
+   - (cd ./src/runner && cargo test)
+   - (cd ./src/server && cargo test)
+   - (cd ./src/state && cargo test)
+
    - cargo test
 
    # Bootstrap simple's cache with cucumber's cache
