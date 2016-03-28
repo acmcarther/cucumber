@@ -11,6 +11,9 @@ matrix:
     - rust: stable
     - rust: beta
     - rust: nightly
+  allow_failures:
+    - rust: beta
+    - rust: nightly
 
 script:
    # Run Submodule unit tests
