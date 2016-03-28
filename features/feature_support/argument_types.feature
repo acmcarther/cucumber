@@ -23,6 +23,12 @@ Feature: Step argument type inference
         Given!(c, "^a step with table arg:$", |_, _, (t,): (Vec<Vec<String>>,)| {
           InvokeResponse::check_eq(t, vec![vec!["1".to_owned(), "2".to_owned(), "3".to_owned()]])
         });
+
+        Given!(c, "^a step with multiple args:( optional)? (\\d+)$", |_, _, (b, u, t): (bool, u32, Vec<Vec<String>>)| {
+          InvokeResponse::check_eq(b, true)
+            .and(InvokeResponse::check_eq(u, 20))
+            .and(InvokeResponse::check_eq(t, vec![vec!["1".to_owned()], vec!["2".to_owned()], vec!["3".to_owned()]]))
+        });
       """
     Then the project compiles
 
@@ -40,6 +46,10 @@ Feature: Step argument type inference
               \"\"\"
             Given a step with table arg:
               | 1 | 2 | 3 |
+            Given a step with multiple args: optional 20
+              | 1 |
+              | 2 |
+              | 3 |
       """
     Then the feature passes with no undefined steps
 
