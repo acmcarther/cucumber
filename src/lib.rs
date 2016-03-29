@@ -1,5 +1,7 @@
 #![doc(html_root_url = "https://acmcarther.github.io/cucumber-rs/")]
 
+#![deny(missing_docs)]
+
 // NOTE: The below crates will need pub in beta and nightly
 extern crate cucumber_state;
 extern crate cucumber_server;
@@ -24,6 +26,30 @@ pub use launcher::{
   ruby_command
 };
 
+/// Destructure a vector of [InvokeArgument](event/request/enum.InvokeArgument.html) into a tuple of values similar to normal try!
+///
+/// Will either short circult return an InvokeArgument::Fail, describing either improper arg count
+/// or improper arg type, or will yield the tuple of values
+///
+/// Reminder: Tuple of one value is represented as `(t,): (Type,)`
+///
+/// # Example
+///
+/// ```
+/// fn do_work() -> InvokeResponse {
+///   let (x, y, z): (u32, u32, bool) = try_destructure!(vec![
+///     InvokeArgument::from_str("1"),
+///     InvokeArgument::from_str("2"),
+///     InvokeArgument::None
+///   ]);
+///
+///   if x == 1 && y == 2 and z == false {
+///     InvokeResponse::Success
+///   } else {
+///     InvokeResponse::fail_from_str("Values did not match")
+///   }
+/// }
+/// ```
 #[macro_export]
 macro_rules! try_destructure {
   ($r: ident) => ({
@@ -46,7 +72,18 @@ macro_rules! try_destructure {
   })
 }
 
-// NOTE: These are capitalized to follow Cucumber general conventions, rather than Rust
+/// Add a Given step to a [CucumberRegistrar](definitions/registration/trait.CucumberRegistrar.html)
+///
+/// # Example
+/// ```
+/// pub fn register_steps(c: &mut CucumberRegistrar<u32>) {
+///   Given!(c, "^I have (\\d+) coins$", |_, world: &mut u32, (coin_count,): (u32,)| {
+///     *world = coin_count;
+///     InvokeResponse::Success
+///   });
+/// }
+/// ```
+///
 #[macro_export]
 macro_rules! Given {
   ($cuke:expr, $regex:expr, $body:expr) => {{
@@ -57,6 +94,22 @@ macro_rules! Given {
   }}
 }
 
+/// Add a When step to a [CucumberRegistrar](definitions/registration/trait.CucumberRegistrar.html)
+///
+/// # Example
+/// ```
+/// pub fn register_steps(c: &mut CucumberRegistrar<u32>) {
+///   When!(c, "^I spend (\\d+) coins$", |_, world: &mut u32, (coin_count,): (u32,)| {
+///     if *world - coin_count < 0 {
+///       InvokeResponse::fail_from_str("Tried to spend more coins than were owned")
+///     } {
+///       *world = *world - coin_count;
+///       InvokeResponse::Success
+///     }
+///   });
+/// }
+/// ```
+///
 #[macro_export]
 macro_rules! When {
   ($cuke:expr, $regex:expr, $body:expr) => {{
@@ -67,6 +120,17 @@ macro_rules! When {
   }}
 }
 
+/// Add a Then step to a [CucumberRegistrar](definitions/registration/trait.CucumberRegistrar.html)
+///
+/// # Example
+/// ```
+/// pub fn register_steps(c: &mut CucumberRegistrar<u32>) {
+///   Then!(c, "^I have (\\d+) coins left$", |_, world: &mut u32, (coin_count,): (u32,)| {
+///     InvokeResponse::check_eq(*world, coin_count)
+///   });
+/// }
+/// ```
+///
 #[macro_export]
 macro_rules! Then {
   ($cuke:expr, $regex:expr, $body:expr) => {{
