@@ -1,3 +1,8 @@
+//! Contains responses for Gherkin interpreter (or Wire Protocol).
+//!
+//! Consumers mostly need to be concerned with [InvokeResponse](./enum.InvokeResponse.html), as it is the
+//! return type of all step defintions.
+
 #[cfg(feature = "serde_macros")]
 include!("response.rs.in");
 
@@ -13,6 +18,7 @@ use std::fmt::Debug;
 // pub struct Step
 // pub struct FailMessage
 
+/// Types of responses produced by [runners](../../runner/struct.WorldRunner.html)
 #[derive(Eq, PartialEq, Clone, Debug)]
 pub enum Response {
   StepMatches(StepMatchesResponse),
@@ -122,6 +128,12 @@ pub enum StepMatchesResponse {
 }
 
 
+/// The low level type capturing the possible outcomes a step invocation may have.
+///
+/// Typical instantiation of this type will be done using the helpers provided.
+///
+/// This type is designed to be heavily composable, as it is the form many operations against state
+/// will take. If it doesn't suit a particular use case, that use case was probably not conceived of and should be included!
 // ["pending", "I'll do it later"]
 // ["success"]
 // ["fail", {"message": "The wires are down", "exception": "Some.Foreign.ExceptionType"}]
@@ -134,14 +146,17 @@ pub enum InvokeResponse {
 }
 
 impl InvokeResponse {
+  /// Build an InvokeResponse::Pending with a message
   pub fn pending_from_str(val: &str) -> InvokeResponse {
     InvokeResponse::Pending(val.to_owned())
   }
 
+  /// Build an InvokeResponse::Fail with a message
   pub fn fail_from_str(val: &str) -> InvokeResponse {
     InvokeResponse::Fail(FailMessage::new(val.to_owned()))
   }
 
+  /// Return an InvokeResponse reflecting an equality check
   pub fn check_eq<T: PartialEq + Debug>(first: T, second: T) -> InvokeResponse {
     if first == second {
       InvokeResponse::Success
@@ -150,6 +165,7 @@ impl InvokeResponse {
     }
   }
 
+  /// Return an InvokeResponse reflecting a negative equality check
   pub fn check_not_eq<T: PartialEq + Debug>(first: T, second: T) -> InvokeResponse {
     if first == second {
       InvokeResponse::fail_from_str(&format!("Value [{:?}] was equal to [{:?}]", first, second))
@@ -158,6 +174,7 @@ impl InvokeResponse {
     }
   }
 
+  /// Return an InvokeResponse reflecting a boolean outcome
   pub fn check(b: bool) -> InvokeResponse {
     if b {
       InvokeResponse::Success
@@ -166,6 +183,7 @@ impl InvokeResponse {
     }
   }
 
+  /// Return an InvokeResponse reflecting a boolean outcome with a custom message
   pub fn expect(b: bool, fail_msg: &str) -> InvokeResponse {
     if b {
       InvokeResponse::Success
@@ -174,6 +192,7 @@ impl InvokeResponse {
     }
   }
 
+  /// Compose InvokeResponses with "and" logic, exiting on non-success
   pub fn and(self, other: InvokeResponse) -> InvokeResponse {
     match self {
       InvokeResponse::Success => other,
@@ -181,6 +200,7 @@ impl InvokeResponse {
     }
   }
 
+  /// Compose InvokeResponses with "or" logic, exiting on success
   pub fn or(self, other: InvokeResponse) -> InvokeResponse {
     match self {
       InvokeResponse::Fail(_) | InvokeResponse::Pending(_) => other,

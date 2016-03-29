@@ -7,7 +7,7 @@ before_install:
 - rvm use 2.2.3
 - bundle install
 after_success:
-- travis-cargo doc-upload
+- travis-cargo --only stable doc-upload
 matrix:
   include:
   - rust: stable

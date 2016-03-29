@@ -3,12 +3,24 @@
 #![deny(missing_docs)]
 
 // NOTE: The below crates will need pub in beta and nightly
+/// Low level location of step functions and matcher logic
 extern crate cucumber_state;
+
+/// External facing interface to other Gherkin implementations
 extern crate cucumber_server;
+
+/// Coordinator logic between [server](../server/index.html) and [state](../state/index.html)
 extern crate cucumber_runner;
+
+/// Business logic for step registration and invoke argument destructuring
 extern crate cucumber_definitions;
+
+/// External facing interface for events
 extern crate cucumber_event;
+
+/// Helpers for regular expressions
 extern crate cucumber_regex;
+
 extern crate itertools;
 
 pub use cucumber_state as state;
@@ -26,7 +38,14 @@ pub use launcher::{
   ruby_command
 };
 
-/// Destructure a vector of [InvokeArgument](event/request/enum.InvokeArgument.html) into a tuple of values similar to normal try!
+pub use runner::{WorldRunner, CommandRunner};
+pub use definitions::registration::CucumberRegistrar;
+pub use state::{Cucumber, SendableStep};
+pub use server::Server;
+pub use event::request::InvokeArgument;
+pub use event::response::InvokeResponse;
+
+/// Destructure a vector of [InvokeArgument](event/request/enum.InvokeArgument.html) into a tuple of values, or a bad [InvokeResponse](event/response/enum.InvokeResponse.html), similar to normal try!
 ///
 /// Will either short circult return an InvokeArgument::Fail, describing either improper arg count
 /// or improper arg type, or will yield the tuple of values

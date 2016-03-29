@@ -14,6 +14,9 @@ use event::response::StepArg;
 use event::response::Step as ResponseStep;
 use event::request::InvokeArgument;
 
+/// The trait steps must implement to be invokable
+///
+/// As far as I can tell, this is unimplementable because of the blanket impl
 pub trait SendableStep<World>: Send + Fn(&Cucumber<World>, &mut World, Vec<InvokeArgument>) -> InvokeResponse {}
 
 impl<T, World> SendableStep<World> for T where T: Send + Fn(&Cucumber<World>, &mut World, Vec<InvokeArgument>) -> InvokeResponse {}
@@ -22,6 +25,22 @@ pub type Step<World> = Box<SendableStep<World, Output=InvokeResponse>>;
 
 pub type StepId = u32;
 
+/// The Cucumber state wrapper
+///
+/// This struct maintains the list of primitive step components, and does the lookups to find and
+/// execute steps. It also maintains the current tags
+///
+/// This struct is typically only used directly when invoking steps from other steps, as in the
+/// example. Otherwise, it is managed by the [WorldRunner](../runner/struct.WorldRunner.html)
+///
+/// # Example
+///
+/// ```
+/// Given!(c, "^a normal step$", |cuke: &Cucumber<u32>, world: &mut u32, _| {
+///   cuke.invoke("another step", world, None)
+/// });
+/// ```
+///
 pub struct Cucumber<World> {
   step_regexes: Vec<Regex>,
   step_ids: HashMap<String, (StepId, String)>,
@@ -40,6 +59,10 @@ impl <World> Cucumber<World> {
     }
   }
 
+  /// Add a new step to the set of steps.
+  ///
+  /// This method is typically executed by a [WorldRunner](../runner/struct.WorldRunner.html) when
+  /// `#given`, `#when` or `#then` methods are called.
   pub fn insert_step(&mut self, path: String, regex: Regex, step: Step<World>) {
     let str_rep = regex.as_str().to_owned();
     self.step_regexes.push(regex);
@@ -51,6 +74,11 @@ impl <World> Cucumber<World> {
     self.steps.insert(this_id, step);
   }
 
+  /// Find a step or steps matching a given string.
+  ///
+  /// This method is typically executed by a [WorldRunner](../runner/struct.WorldRunner.html) when
+  /// trying to find a step corresponding to a string provided by the
+  /// [Server](../server/struct.Server.html).
   pub fn find_match(&self, str: &str) -> Vec<ResponseStep> {
     self.step_regexes.iter()
       .filter_map(|ref regex| {
@@ -73,6 +101,10 @@ impl <World> Cucumber<World> {
       .collect()
   }
 
+  /// Directly execute the step matched by a regular expression.
+  ///
+  /// The most typical method applied on a Cucumber instance, this method allows steps to invoke
+  /// other steps. The final argument is for use with docstring arguments or tables.
   pub fn invoke(&self, str: &str, world: &mut World, extra_arg: Option<InvokeArgument>) -> InvokeResponse {
     let mut matches = self.find_match(str);
     match matches.len() {
@@ -93,6 +125,10 @@ impl <World> Cucumber<World> {
     }
   }
 
+  /// Retrieve a step based on its Id
+  ///
+  /// This method is typically executed by a [WorldRunner](../runner/struct.WorldRunner.html) when
+  /// a request specifically invokes a step by Id. This is typical of the Cucumber Wire protocol.
   pub fn step(&self, id: StepId) -> Option<&Step<World>> {
     self.steps.get(&id)
   }

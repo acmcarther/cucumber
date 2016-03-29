@@ -11,6 +11,17 @@ use definitions::registration::CucumberRegistrar;
 
 use std::str::FromStr;
 
+/// The step runner for [Cucumber state](state/struct.Cucumber.html)
+///
+/// The runner stands in for the Cucumber instance and provides an interface for
+/// [Request](../event/request/enum.Request.html) events to be translated into state changes and
+/// step invocations, along with a [Response](../event/response/enum.Response.html). These are typically supplied by a running
+/// [Server](../server/struct.Server.html), but may be supplied by a native Gherkin implementation
+/// later.
+///
+/// Typically this struct will only be instantiated by the user, and then passed to a Server to
+/// maintain.
+///
 #[allow(dead_code)]
 pub struct WorldRunner<World> {
   cuke: Cucumber<World>,
@@ -27,6 +38,9 @@ impl <World> WorldRunner<World> {
   }
 }
 
+/// An interface for implementers that can consume a [Request](event/request/enum.Request.html) and yield a [Response](event/response/enum.Response.html)
+///
+/// This generally refers to [WorldRunner](./struct.WorldRunner.html)
 pub trait CommandRunner {
   fn execute_cmd(&mut self, req: Request) -> Response;
 }

@@ -1,6 +1,8 @@
-use cucumber::definitions::registration::CucumberRegistrar;
-use cucumber::event::response::InvokeResponse;
-use cucumber::state::Cucumber;
+use cucumber::{
+  Cucumber,
+  CucumberRegistrar,
+  InvokeResponse
+};
 use support::env::CucumberWorld;
 use support::fs;
 

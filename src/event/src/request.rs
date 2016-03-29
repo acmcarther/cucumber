@@ -1,3 +1,9 @@
+//! Contains requests made by Gherkin interpreter (or Wire Protocol).
+//!
+//! Consumers will interact with [InvokeArgument](./enum.InvokeArgument.html) if using
+//! [Cucumber's](../../state/struct.Cucumber.html) direct invoke capability with tables or
+//! docstrings.
+
 #[cfg(feature = "serde_macros")]
 include!("request.rs.in");
 
@@ -20,6 +26,7 @@ use response::StepArg;
 // pub struct EndScenarioRequest
 // pub struct SnippetTextRequest
 
+/// Types of requests handled by [runners](../../runner/struct.WorldRunner.html)
 #[derive(Eq, PartialEq, Clone, Debug)]
 pub enum Request {
   StepMatches(StepMatchesRequest),
@@ -95,6 +102,10 @@ impl Visitor for RequestVisitor {
   }
 }
 
+/// The low level type capturing the possible values a step may provide.
+///
+/// Normal regex arguments as well as docstrings come in the form of the String variant. Conversion
+/// to other types is done at later stages. Tables are represented as Vec<Vec<String>>
 #[derive(Eq, PartialEq, Clone, Debug)]
 pub enum InvokeArgument {
   String(String),

@@ -14,11 +14,44 @@ use runner::CommandRunner;
 
 use event::request::Request;
 
+/// The interface between an external Gherkin parser and internal [Cucumber state](state/struct.Cucumber.html)
+///
+/// Provided with a [CommandRunner](../runner/trait.CommandRunner.html), typically a
+/// [WorldRunner](../runner/struct.WorldRunner.html), this struct cna be started and will monitor for
+/// incoming Cucumber Wire Protocol traffic. This should not need to be instantiated directly in
+/// most cases, as [the start function](../fn.start.html) addresses the typical use-case.
+///
+/// # Example
+///
+/// ```
+/// let mut runner = WorldRunner::new(world);
+/// let server = Server::new(runner);
+/// // NOTE: Unused stop_rx needs to be held, or it will drop and close the server
+/// let (handle, stop_rx) = server.start(None);
+///
+/// /*
+///  * Execute remote gherkin parser
+///  */
+///
+/// handle.join().unwrap()
+/// ```
 #[allow(dead_code)]
 pub struct Server<R: CommandRunner + Send> {
   runner: R,
 }
 
+/// An "unplugged" return value from server start, for compiler reasons
+///
+/// The "correct" return value for [Server#start](./struct.Server.html#method.start) is this server handle.
+///   However, it yields a weird linker error on stable when methods are invoked on it when the crate is imported (so not on local tests).
+///   Therefore, we're currently returning the components of this structure as a tuple for now.
+///
+/// See build: https://travis-ci.org/acmcarther/cucumber/jobs/116256537  
+/// Example Error  
+/// ```
+///  /home/travis/build/acmcarther/cucumber-rs/examples/calculator/features/cuke.rs:31: undefined reference to `server::ServerHandle::wait::hd35f2fdfe2f62e1dyv
+/// ```
+///
 pub struct ServerHandle {
   kill_sender: Sender<()>,
   handle: JoinHandle<()>
@@ -97,19 +130,6 @@ impl <R: CommandRunner + Send> Server<R> {
     // Wait for the server thread to have started the TcpListener
     main_barrier.wait();
 
-    // NOTE: The "clean" return value is this server handle
-    //   However, it yields a weird linker error on stable when methods are invoked on it
-    //   when the crate is imported (so not on local tests)
-    //   Therefore, we're returning the components of this structure as a tuple for now
-    //
-    //   See:
-    //     Build: https://travis-ci.org/acmcarther/cucumber-rs/jobs/116256537
-    //     Example Error:
-    //       /home/travis/build/acmcarther/cucumber-rs/examples/calculator/features/cuke.rs:31:
-    //         undefined reference to `server::ServerHandle::waits::hd35f2fdfe2f62e1dyvd'
-    // TODO: Investigate the cause of this linker error and report it, or wait for it to get fixed
-    //
-    //ServerHandle { handle: handle, kill_sender: stop_tx }
     (handle, stop_tx)
   }
 }
