@@ -3,8 +3,8 @@ sudo: false
 before_script:
 - pip install 'travis-cargo<0.2' --user && export PATH=$HOME/.local/bin:$PATH
 before_install:
-- rvm install ruby-2.2.3
-- rvm use 2.2.3
+- rvm install ruby-2.3.0
+- rvm use 2.3.0
 - bundle install
 after_success:
 - travis-cargo --only stable doc-upload
