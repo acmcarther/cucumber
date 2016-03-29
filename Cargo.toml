@@ -9,7 +9,6 @@ license = "MIT"
 readme = "README.md"
 keywords = ["cucumber", "testing"]
 build = "build.rs"
-exclude = ["features/*"]
 
 
 [features]
