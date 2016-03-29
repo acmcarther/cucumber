@@ -17,12 +17,6 @@ matrix:
   - rust: beta
   - rust: nightly
 script:
-- "(cd ./src/definitions && travis-cargo test)"
-- "(cd ./src/event && travis-cargo test)"
-- "(cd ./src/regex && travis-cargo test)"
-- "(cd ./src/runner && travis-cargo test)"
-- "(cd ./src/server && travis-cargo test)"
-- "(cd ./src/state && travis-cargo test)"
 - travis-cargo test
 - "(cd ./examples/simple && travis-cargo test)"
 - "(cd ./examples/calculator && travis-cargo test)"

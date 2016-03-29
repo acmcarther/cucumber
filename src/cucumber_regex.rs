@@ -1,5 +1,3 @@
-extern crate regex;
-
 use regex::Regex;
 
 #[allow(dead_code)]

@@ -1,8 +1,3 @@
-extern crate serde_json;
-
-extern crate cucumber_runner as runner;
-extern crate cucumber_event as event;
-
 use std::io::{BufRead, BufReader, Write};
 use std::sync::mpsc::{Sender, channel, TryRecvError};
 use std::sync::{Barrier, Arc};
@@ -14,7 +9,9 @@ use runner::CommandRunner;
 
 use event::request::Request;
 
-/// The interface between an external Gherkin parser and internal [Cucumber state](state/struct.Cucumber.html)
+use serde_json;
+
+/// The interface between an external Gherkin parser and internal [Cucumber state](../state/struct.Cucumber.html)
 ///
 /// Provided with a [CommandRunner](../runner/trait.CommandRunner.html), typically a
 /// [WorldRunner](../runner/struct.WorldRunner.html), this struct cna be started and will monitor for
@@ -24,11 +21,9 @@ use event::request::Request;
 /// # Example
 ///
 /// ```no_run
-/// extern crate cucumber_runner;
-/// extern crate cucumber_server;
 ///
-/// use cucumber_runner::WorldRunner;
-/// use cucumber_server::Server;
+/// use cucumber::WorldRunner;
+/// use cucumber::Server;
 ///
 /// fn main() {
 ///   let world: u32 = 0;

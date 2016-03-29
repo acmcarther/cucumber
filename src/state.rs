@@ -1,10 +1,3 @@
-extern crate regex;
-
-extern crate cucumber_event as event;
-
-#[cfg(test)]
-extern crate cucumber_regex;
-
 pub use regex::{Regex, Captures};
 
 use std::collections::HashMap;
@@ -17,6 +10,8 @@ use event::request::InvokeArgument;
 /// The trait steps must implement to be invokable
 ///
 /// As far as I can tell, this is unimplementable because of the blanket impl
+/// Generally, any closure closing over sendable data, and taking sendable arguments in the form
+/// indicated should be implemented automatically by the blanket impl
 pub trait SendableStep<World>: Send + Fn(&Cucumber<World>, &mut World, Vec<InvokeArgument>) -> InvokeResponse {}
 
 impl<T, World> SendableStep<World> for T where T: Send + Fn(&Cucumber<World>, &mut World, Vec<InvokeArgument>) -> InvokeResponse {}
@@ -36,10 +31,10 @@ pub type StepId = u32;
 /// # Example
 ///
 /// ```
-/// extern crate cucumber_state;
-/// extern crate cucumber_regex;
-///
-/// use cucumber_state::Cucumber;
+/// use cucumber::{
+///   cucumber_regex,
+///   Cucumber
+/// };
 ///
 /// fn main() {
 ///   let mut cuke: Cucumber<u32> = Cucumber::new();

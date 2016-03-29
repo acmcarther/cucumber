@@ -8,7 +8,7 @@
 include!("request.rs.in");
 
 #[cfg(not(feature = "serde_macros"))]
-include!(concat!(env!("OUT_DIR"), "/request.rs"));
+include!(concat!(env!("OUT_DIR"), "/event/request.rs"));
 
 use std::ascii::AsciiExt;
 
@@ -17,7 +17,7 @@ use serde::de::{SeqVisitor, Visitor};
 use serde::de::impls::VecVisitor;
 use serde::Error as SerdeError;
 
-use response::StepArg;
+use event::response::StepArg;
 
 // NOTE: These defined in request.rs.in (as they need to derive Deserialize)
 // pub struct StepMatchesRequest
@@ -105,7 +105,7 @@ impl Visitor for RequestVisitor {
 /// The low level type capturing the possible values a step may provide.
 ///
 /// Normal regex arguments as well as docstrings come in the form of the String variant. Conversion
-/// to other types is done at later stages. Tables are represented as Vec<Vec<String>>
+/// to other types is done at later stages. Tables are represented as `Vec<Vec<String>>`
 #[derive(Eq, PartialEq, Clone, Debug)]
 pub enum InvokeArgument {
   String(String),

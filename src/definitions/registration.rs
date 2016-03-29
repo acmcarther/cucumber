@@ -1,7 +1,7 @@
 //! Logic for registering step definitions
 
 use state::{Cucumber, Step};
-use external_regex::Regex;
+use regex::Regex;
 
 /// An interface for registering steps
 ///

@@ -1,32 +1,27 @@
 #![doc(html_root_url = "https://acmcarther.github.io/cucumber-rs/")]
 
-// NOTE: The below crates will need pub in beta and nightly
+extern crate regex;
+extern crate itertools;
+extern crate serde;
+extern crate serde_json;
+
 /// Low level location of step functions and matcher logic
-extern crate cucumber_state;
+pub mod state;
 
 /// External facing interface to other Gherkin implementations
-extern crate cucumber_server;
+pub mod server;
 
-/// Coordinator logic between [server](../server/index.html) and [state](../state/index.html)
-extern crate cucumber_runner;
+/// Coordinator logic between [server](server/index.html) and [state](state/index.html)
+pub mod runner;
 
 /// Business logic for step registration and invoke argument destructuring
-extern crate cucumber_definitions;
+pub mod definitions;
 
 /// External facing interface for events
-extern crate cucumber_event;
+pub mod event;
 
 /// Helpers for regular expressions
-extern crate cucumber_regex;
-
-extern crate itertools;
-
-pub use cucumber_state as state;
-pub use cucumber_server as server;
-pub use cucumber_runner as runner;
-pub use cucumber_definitions as definitions;
-pub use cucumber_event as event;
-pub use cucumber_regex as regex;
+pub mod cucumber_regex;
 
 mod launcher;
 
@@ -126,8 +121,8 @@ macro_rules! try_destructure {
 #[macro_export]
 macro_rules! Given {
   ($cuke:expr, $regex:expr, $body:expr) => {{
-    use $crate::regex;
-    $cuke.given(file!(), line!(), regex::build($regex), Box::new(move |cuke, world, args| {
+    use $crate::cucumber_regex;
+    $cuke.given(file!(), line!(), cucumber_regex::build($regex), Box::new(move |cuke, world, args| {
       ($body)(cuke, world, try_destructure!(args))
     }))
   }}
@@ -163,8 +158,8 @@ macro_rules! Given {
 #[macro_export]
 macro_rules! When {
   ($cuke:expr, $regex:expr, $body:expr) => {{
-    use $crate::regex;
-    $cuke.when(file!(), line!(), regex::build($regex), Box::new(move |cuke, world, args| {
+    use $crate::cucumber_regex;
+    $cuke.when(file!(), line!(), cucumber_regex::build($regex), Box::new(move |cuke, world, args| {
       ($body)(cuke, world, try_destructure!(args))
     }))
   }}
@@ -195,8 +190,8 @@ macro_rules! When {
 #[macro_export]
 macro_rules! Then {
   ($cuke:expr, $regex:expr, $body:expr) => {{
-    use $crate::regex;
-    $cuke.then(file!(), line!(), regex::build($regex), Box::new(move |cuke, world, args| {
+    use $crate::cucumber_regex;
+    $cuke.then(file!(), line!(), cucumber_regex::build($regex), Box::new(move |cuke, world, args| {
       ($body)(cuke, world, try_destructure!(args))
     }))
   }}

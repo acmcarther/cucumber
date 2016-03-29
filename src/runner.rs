@@ -1,8 +1,3 @@
-extern crate regex;
-extern crate cucumber_state as state;
-extern crate cucumber_event as event;
-extern crate cucumber_definitions as definitions;
-
 use regex::Regex;
 use state::{Cucumber, Step};
 use event::request::Request;
@@ -11,7 +6,7 @@ use definitions::registration::CucumberRegistrar;
 
 use std::str::FromStr;
 
-/// The step runner for [Cucumber state](state/struct.Cucumber.html)
+/// The step runner for [Cucumber state](../state/struct.Cucumber.html)
 ///
 /// The runner stands in for the Cucumber instance and provides an interface for
 /// [Request](../event/request/enum.Request.html) events to be translated into state changes and
@@ -38,7 +33,7 @@ impl <World> WorldRunner<World> {
   }
 }
 
-/// An interface for implementers that can consume a [Request](event/request/enum.Request.html) and yield a [Response](event/response/enum.Response.html)
+/// An interface for implementers that can consume a [Request](../event/request/enum.Request.html) and yield a [Response](../event/response/enum.Response.html)
 ///
 /// This generally refers to [WorldRunner](./struct.WorldRunner.html)
 pub trait CommandRunner {

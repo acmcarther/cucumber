@@ -7,7 +7,7 @@
 include!("response.rs.in");
 
 #[cfg(not(feature = "serde_macros"))]
-include!(concat!(env!("OUT_DIR"), "/response.rs"));
+include!(concat!(env!("OUT_DIR"), "/event/response.rs"));
 
 use serde::{self, Serializer};
 use serde::ser::impls::TupleVisitor2;

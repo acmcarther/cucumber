@@ -2,19 +2,38 @@
 name = "cucumber"
 version = "0.1.0"
 authors = ["Alex McArther <acmcarther@gmail.com>"]
+description = "Tooling for using Cucumber with Rust projects"
+documentation = "https://acmcarther.github.io/cucumber/cucumber/index.html"
+repository = "https://github.com/acmcarther/cucumber"
+license = "MIT"
+readme = "README.md"
+keywords = ["cucumber", "testing"]
+build = "build.rs"
+
+
+[features]
+default = ["serde_codegen"]
+nightly = ["serde_macros"]
+
 
 [dev-dependencies]
-tempdir = "*"
+tempdir = "0.3.4"
+
 
 [dependencies]
-cucumber_state = { path = "./src/state" }
-cucumber_server = { path = "./src/server" }
-cucumber_runner = { path = "./src/runner" }
-cucumber_definitions = { path = "./src/definitions" }
-cucumber_event = { path = "./src/event" }
-cucumber_regex = { path = "./src/regex" }
-itertools = "*"
+regex = "0.1.60"
+serde = "0.7.0"
+serde_json = "0.7.0"
+serde_macros = { version = "0.7.0", optional = true }
+itertools = "0.4.11"
 
-#[[test]]
-#name = "cuke"
-#path = "./features/cuke.rs"
+
+[build-dependencies]
+serde_codegen = { version = "0.7.0", optional = true }
+syntex = "0.30.0"
+itertools = "0.4.11"
+
+
+[[test]]
+name = "cuke"
+path = "./features/cuke.rs"
