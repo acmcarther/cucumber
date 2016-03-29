@@ -1,6 +1,7 @@
 # Cucumber-rs
 
 [![Build Status](https://travis-ci.org/acmcarther/cucumber-rs.svg?branch=master)](https://travis-ci.org/acmcarther/cucumber-rs)
+[Documentation](https://acmcarther.github.io/cucumber/cucumber/index.html)
 
 ## Setup for your local Rust project
 In your rust project:
