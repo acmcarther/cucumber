@@ -1,4 +1,4 @@
-
+#![doc(html_root_url = "https://acmcarther.github.io/cucumber-rs/")]
 
 // NOTE: The below crates will need pub in beta and nightly
 extern crate cucumber_state;
