@@ -4,6 +4,8 @@
 
 [Documentation](https://acmcarther.github.io/cucumber/cucumber/index.html)
 
+![example run](https://cloud.githubusercontent.com/assets/1660129/14127154/a6703cfa-f5ca-11e5-998b-a7919eac8a75.gif)
+
 ## Before Going Further
 Please checkout the [calculator example](examples/calculator)! That example is a full cargo project example showcasing Cucumber tests on real-ish behavior, and outputting a binary. It'll hopefully let you know if you like the testing style before really commiting to it.
 
