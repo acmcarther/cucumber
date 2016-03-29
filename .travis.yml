@@ -1,44 +1,36 @@
 language: rust
 sudo: false
-
 before_script:
-  - pip install 'travis-cargo<0.2' --user && export PATH=$HOME/.local/bin:$PATH
-
+- pip install 'travis-cargo<0.2' --user && export PATH=$HOME/.local/bin:$PATH
 before_install:
-  - rvm install ruby-2.2.3
-  - rvm use 2.2.3
-  - bundle install
-
+- rvm install ruby-2.2.3
+- rvm use 2.2.3
+- bundle install
 after_success:
-  - travis-cargo doc-upload
-
+- travis-cargo doc-upload
 matrix:
   include:
-    - rust: stable
-    - rust: beta
-    - rust: nightly
+  - rust: stable
+  - rust: beta
+  - rust: nightly
   allow_failures:
-    - rust: beta
-    - rust: nightly
-
+  - rust: beta
+  - rust: nightly
 script:
-  # TODO: Clean this up: it needs to be exposed as a single command for developers
-  - (cd ./src/definitions && travis-cargo test)
-  - (cd ./src/event && travis-cargo test)
-  - (cd ./src/regex && travis-cargo test)
-  - (cd ./src/runner && travis-cargo test)
-  - (cd ./src/server && travis-cargo test)
-  - (cd ./src/state && travis-cargo test)
-
-  - travis-cargo test
-
-  - (cd ./examples/simple && travis-cargo test)
-  - (cd ./examples/calculator && travis-cargo test)
-
-  - travis-cargo doc -- -j 1
-
-
+- "(cd ./src/definitions && travis-cargo test)"
+- "(cd ./src/event && travis-cargo test)"
+- "(cd ./src/regex && travis-cargo test)"
+- "(cd ./src/runner && travis-cargo test)"
+- "(cd ./src/server && travis-cargo test)"
+- "(cd ./src/state && travis-cargo test)"
+- travis-cargo test
+- "(cd ./examples/simple && travis-cargo test)"
+- "(cd ./examples/calculator && travis-cargo test)"
+- travis-cargo doc -- -j 1
 cache:
   bundler: true
   directories:
-    - $HOME/.cargo/
+  - "$HOME/.cargo/"
+env:
+  global:
+    secure: gq+DAb4Xye/ErLnS6ZX8ag86J4G/ZS2aIEl9YyUDUlh1pV0jdcF7pJ2rp1I8ko7tlxsHQPOUuPo6iqwadC3hX5jzGKFC47/ARJJNFqFbINJmkJoJtdy8cYbsJ/7ICxeqOc773kZj8T28/tso3CNSdqbMsWS1REFivoe4y+qPZ7dmhIXhg/VdSAcBvW2eNtMD5in2ImWPoPVTjcS+iGLUza/rBBwbRRQXh6qpREDZ8BSWNtzT4taoA1ZeEZugcheXBORottuNoALo70TASrR0IjA1Y7tVMRUVG2TLZNOnPms3wdZ58Aqdn6LNkahz4GMMitau7P7gF9V3QzguttaYwLVxzM3T4CQTBxiepKRzWEts20vECIop2D+J5CeYSWZJDbtWPzLq/m/eYhnp373sO99tHgIEVFwH5ZlbtEVkNTTYX0B/cnD6oT40ahMtKjyeWbp++GBCQqZLwnly2btrG1Id/6zUwNShNVAvEall+PLBuJnrPjFQqYE3QUEeLww2PK8pLreqvCLYPvd0ChEJTZvymUe/EKiyEawAX5LwMjsW4r+Y41zKOfEo5mTc5hvioqzz/vOl/UCWmFFpGDwAm6SsB5C6fqcmEL+u8Nhh0eZ+pmfdmTZr0iUELa+eUZGCjFGECbH4otHpTrLygoluylT+NDlM1O/9nEYepuRlD84=
