@@ -1,7 +1,5 @@
 #![doc(html_root_url = "https://acmcarther.github.io/cucumber-rs/")]
 
-#![deny(missing_docs)]
-
 // NOTE: The below crates will need pub in beta and nightly
 /// Low level location of step functions and matcher logic
 extern crate cucumber_state;
@@ -55,17 +53,28 @@ pub use event::response::InvokeResponse;
 /// # Example
 ///
 /// ```
-/// fn do_work() -> InvokeResponse {
-///   let (x, y, z): (u32, u32, bool) = try_destructure!(vec![
-///     InvokeArgument::from_str("1"),
-///     InvokeArgument::from_str("2"),
-///     InvokeArgument::None
-///   ]);
+/// #[macro_use]
+/// extern crate cucumber;
 ///
-///   if x == 1 && y == 2 and z == false {
-///     InvokeResponse::Success
-///   } else {
-///     InvokeResponse::fail_from_str("Values did not match")
+/// use cucumber::{
+///   InvokeArgument,
+///   InvokeResponse
+/// };
+///
+/// fn main() {
+///   fn do_work() -> InvokeResponse {
+///     let args = vec![
+///       InvokeArgument::from_str("1"),
+///       InvokeArgument::from_str("2"),
+///       InvokeArgument::None
+///     ];
+///     let (x, y, z): (u32, u32, bool) = try_destructure!(args);
+///
+///     if x == 1 && y == 2 && z == false {
+///       InvokeResponse::Success
+///     } else {
+///       InvokeResponse::fail_from_str("Values did not match")
+///     }
 ///   }
 /// }
 /// ```
@@ -95,8 +104,19 @@ macro_rules! try_destructure {
 ///
 /// # Example
 /// ```
-/// pub fn register_steps(c: &mut CucumberRegistrar<u32>) {
-///   Given!(c, "^I have (\\d+) coins$", |_, world: &mut u32, (coin_count,): (u32,)| {
+/// #[macro_use]
+/// extern crate cucumber;
+///
+/// use cucumber::{
+///   InvokeResponse,
+///   CucumberRegistrar,
+///   Cucumber
+/// };
+///
+/// pub fn main () {
+///   let mut cucumber: Cucumber<u32> = Cucumber::new();
+///
+///   Given!(cucumber, "^I have (\\d+) coins$", |_, world: &mut u32, (coin_count,): (u32,)| {
 ///     *world = coin_count;
 ///     InvokeResponse::Success
 ///   });
@@ -117,11 +137,22 @@ macro_rules! Given {
 ///
 /// # Example
 /// ```
-/// pub fn register_steps(c: &mut CucumberRegistrar<u32>) {
-///   When!(c, "^I spend (\\d+) coins$", |_, world: &mut u32, (coin_count,): (u32,)| {
+/// #[macro_use]
+/// extern crate cucumber;
+///
+/// use cucumber::{
+///   InvokeResponse,
+///   CucumberRegistrar,
+///   Cucumber
+/// };
+///
+/// pub fn main () {
+///   let mut cucumber: Cucumber<u32> = Cucumber::new();
+///
+///   When!(cucumber, "^I spend (\\d+) coins$", |_, world: &mut u32, (coin_count,): (u32,)| {
 ///     if *world - coin_count < 0 {
 ///       InvokeResponse::fail_from_str("Tried to spend more coins than were owned")
-///     } {
+///     } else {
 ///       *world = *world - coin_count;
 ///       InvokeResponse::Success
 ///     }
@@ -143,8 +174,19 @@ macro_rules! When {
 ///
 /// # Example
 /// ```
-/// pub fn register_steps(c: &mut CucumberRegistrar<u32>) {
-///   Then!(c, "^I have (\\d+) coins left$", |_, world: &mut u32, (coin_count,): (u32,)| {
+/// #[macro_use]
+/// extern crate cucumber;
+///
+/// use cucumber::{
+///   InvokeResponse,
+///   CucumberRegistrar,
+///   Cucumber
+/// };
+///
+/// pub fn main () {
+///   let mut cucumber: Cucumber<u32> = Cucumber::new();
+///
+///   Then!(cucumber, "^I have (\\d+) coins left$", |_, world: &mut u32, (coin_count,): (u32,)| {
 ///     InvokeResponse::check_eq(*world, coin_count)
 ///   });
 /// }

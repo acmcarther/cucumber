@@ -10,16 +10,34 @@ use std::time::Duration;
 /// Starts a Cucumber server and the Ruby client
 ///
 /// # Example
-/// ```
-/// let world: u32 = 0;
+/// ```no_run
+/// #[macro_use]
+/// extern crate cucumber;
 ///
-/// cucumber::start(
-///   world,
-///   &[
-///     &button_steps::register_steps,
-///     &widget_steps::register_steps,
-///   ]
-/// );
+///
+/// mod button_steps {
+///   use cucumber::CucumberRegistrar;
+///   pub fn register_steps(c: &mut CucumberRegistrar<u32>) {
+///   }
+/// }
+///
+/// mod widget_steps {
+///   use cucumber::CucumberRegistrar;
+///   pub fn register_steps(c: &mut CucumberRegistrar<u32>) {
+///   }
+/// }
+///
+/// fn main() {
+///   let world: u32 = 0;
+///
+///   cucumber::start(
+///     world,
+///     &[
+///       &button_steps::register_steps,
+///       &widget_steps::register_steps,
+///     ]
+///   );
+/// }
 /// ```
 ///
 pub fn start<W: Send + 'static>(world: W, register_fns: &[&Fn(&mut CucumberRegistrar<W>)]) {

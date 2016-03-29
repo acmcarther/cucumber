@@ -23,17 +23,26 @@ use event::request::Request;
 ///
 /// # Example
 ///
-/// ```
-/// let mut runner = WorldRunner::new(world);
-/// let server = Server::new(runner);
-/// // NOTE: Unused stop_rx needs to be held, or it will drop and close the server
-/// let (handle, stop_rx) = server.start(None);
+/// ```no_run
+/// extern crate cucumber_runner;
+/// extern crate cucumber_server;
 ///
-/// /*
-///  * Execute remote gherkin parser
-///  */
+/// use cucumber_runner::WorldRunner;
+/// use cucumber_server::Server;
 ///
-/// handle.join().unwrap()
+/// fn main() {
+///   let world: u32 = 0;
+///   let mut runner = WorldRunner::new(world);
+///   let server = Server::new(runner);
+///   let (handle, stop_rx) = server.start(None);
+///
+///   /*
+///    * Execute remote gherkin parser
+///    */
+///
+///   stop_rx.send(()).unwrap();
+///   handle.join().unwrap();
+/// }
 /// ```
 #[allow(dead_code)]
 pub struct Server<R: CommandRunner + Send> {

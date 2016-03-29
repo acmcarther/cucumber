@@ -15,6 +15,6 @@ cucumber_event = { path = "./src/event" }
 cucumber_regex = { path = "./src/regex" }
 itertools = "*"
 
-[[test]]
-name = "cuke"
-path = "./features/cuke.rs"
+#[[test]]
+#name = "cuke"
+#path = "./features/cuke.rs"

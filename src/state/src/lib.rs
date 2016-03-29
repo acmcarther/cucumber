@@ -36,9 +36,18 @@ pub type StepId = u32;
 /// # Example
 ///
 /// ```
-/// Given!(c, "^a normal step$", |cuke: &Cucumber<u32>, world: &mut u32, _| {
-///   cuke.invoke("another step", world, None)
-/// });
+/// extern crate cucumber_state;
+/// extern crate cucumber_regex;
+///
+/// use cucumber_state::Cucumber;
+///
+/// fn main() {
+///   let mut cuke: Cucumber<u32> = Cucumber::new();
+///   cuke.insert_step("dummy_path".to_owned(), cucumber_regex::build("^test$"), Box::new(move |c: &Cucumber<u32>, world: &mut u32, _| {
+///     // Undefined step here will return a "no match" error
+///     c.invoke("another step", world, None)
+///   }));
+/// }
 /// ```
 ///
 pub struct Cucumber<World> {
