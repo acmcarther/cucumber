@@ -2,6 +2,7 @@
 name = "calculator"
 version = "0.0.1"
 authors = ["Alex McArther <acmcarther@gmail.com>"]
+exclude = ["features/*"]
 
 [dev-dependencies]
 cucumber = { path = "../../" }
