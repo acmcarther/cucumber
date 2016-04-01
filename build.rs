@@ -1,37 +1,36 @@
 #[cfg(not(feature = "serde_macros"))]
 mod inner {
-    extern crate syntex;
-    extern crate serde_codegen;
-    extern crate itertools;
+  extern crate syntex;
+  extern crate serde_codegen;
+  extern crate itertools;
 
-    use std::env;
-    use std::path::Path;
-    use std::fs;
+  use std::env;
+  use std::path::Path;
+  use std::fs;
 
-    use inner::itertools::Itertools;
+  use inner::itertools::Itertools;
 
-    pub fn main() {
-      let out_dir = env::var_os("OUT_DIR").unwrap();
+  pub fn main() {
+    let out_dir = env::var_os("OUT_DIR").unwrap();
 
-      let files = vec!["event/request.rs", "event/response.rs"];
+    let files = vec!["event/request.rs", "event/response.rs"];
 
-      files.into_iter().foreach(|file| {
-        let src_string = "src/".to_owned() + file +".in";
-        let src = Path::new(&src_string);
-        println!("src {:?}", src);
-        let dst = Path::new(&out_dir).join(file);
-        println!("dst {:?}", dst);
+    files.into_iter().foreach(|file| {
+      let src_string = "src/".to_owned() + file +".in";
+      let src = Path::new(&src_string);
+      println!("src {:?}", src);
+      let dst = Path::new(&out_dir).join(file);
+      println!("dst {:?}", dst);
 
-        // Don't care if directory already exists
-        let _ = fs::create_dir(Path::new(&out_dir).join("event"));
+      // Don't care if directory already exists
+      let _ = fs::create_dir(Path::new(&out_dir).join("event"));
 
-        let mut registry = syntex::Registry::new();
+      let mut registry = syntex::Registry::new();
 
-        serde_codegen::register(&mut registry);
-        registry.expand("cuke_event", &src, &dst).unwrap();
-      })
-    }
-
+      serde_codegen::register(&mut registry);
+      registry.expand("cuke_event", &src, &dst).unwrap();
+    })
+  }
 }
 
 #[cfg(feature = "serde_macros")]
