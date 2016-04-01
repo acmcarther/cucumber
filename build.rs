@@ -1,5 +1,4 @@
-//#[cfg(not(feature = "serde_macros"))]
-/*
+#[cfg(not(feature = "serde_macros"))]
 mod inner {
     extern crate syntex;
     extern crate serde_codegen;
@@ -9,7 +8,7 @@ mod inner {
     use std::path::Path;
     use std::fs;
 
-    use itertools::Itertools;
+    use inner::itertools::Itertools;
 
     pub fn main() {
       let out_dir = env::var_os("OUT_DIR").unwrap();
@@ -34,9 +33,8 @@ mod inner {
     }
 
 }
-*/
 
-//#[cfg(feature = "serde_macros")]
+#[cfg(feature = "serde_macros")]
 mod inner {
     pub fn main() {}
 }
