@@ -1,5 +1,8 @@
 #![doc(html_root_url = "https://acmcarther.github.io/cucumber-rs/")]
 
+#![cfg_attr(nightly, feature(custom_derive, plugin))]
+#![cfg_attr(nightly, plugin(serde_macros))]
+
 extern crate regex;
 extern crate itertools;
 extern crate serde;

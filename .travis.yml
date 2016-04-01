@@ -13,9 +13,6 @@ matrix:
   - rust: stable
   - rust: beta
   - rust: nightly
-  allow_failures:
-  - rust: beta
-  - rust: nightly
 script:
 - travis-cargo test
 - "(cd ./examples/simple && travis-cargo test)"
