@@ -1,6 +1,5 @@
 #[cfg(not(feature = "serde_macros"))]
 mod inner {
-  extern crate syntex;
   extern crate serde_codegen;
   extern crate itertools;
 
@@ -25,10 +24,7 @@ mod inner {
       // Don't care if directory already exists
       let _ = fs::create_dir(Path::new(&out_dir).join("event"));
 
-      let mut registry = syntex::Registry::new();
-
-      serde_codegen::register(&mut registry);
-      registry.expand("cuke_event", &src, &dst).unwrap();
+      serde_codegen::expand(&src, &dst).unwrap();
     })
   }
 }

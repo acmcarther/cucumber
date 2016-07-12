@@ -85,7 +85,7 @@ impl FromInvokeArg for bool {
     match arg {
       InvokeArgument::None => Ok(false),
       InvokeArgument::String(val) => {
-        match val.as_str() {
+        match val.as_ref() {
           "false" => Ok(false),
           _ => Ok(true)
         }
