@@ -1,6 +1,6 @@
 [package]
 name = "cucumber"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Alex McArther <acmcarther@gmail.com>"]
 description = "Tooling for using Cucumber with Rust projects"
 documentation = "https://acmcarther.github.io/cucumber/cucumber/index.html"
