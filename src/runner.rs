@@ -88,14 +88,28 @@ impl <World> CommandRunner for WorldRunner<World> {
 
 impl <World> CucumberRegistrar<World> for WorldRunner<World> {
   fn given(&mut self, file: &str, line: u32, regex: Regex, step: Step<World>) {
-    self.cuke.given(file, line, regex, step)
+    self.cuke.given(file, line, regex, wrap(step))
   }
 
-  fn when(&mut self, file: &str, line: u32, regex: Regex, step: Step<World>) {
-    self.cuke.when(file, line, regex, step)
+  fn when(&mut self, file: &str, line: u32, regex: Regex, step: SimpleStep<World>) {
+    self.cuke.when(file, line, regex, wrap(step))
   }
 
-  fn then(&mut self, file: &str, line: u32, regex: Regex, step: Step<World>) {
-    self.cuke.then(file, line, regex, step)
+  fn then(&mut self, file: &str, line: u32, regex: Regex, step: SimpleStep<World>) {
+    self.cuke.then(file, line, regex, wrap(step))
   }
+}
+
+// A "simpler" api-level step. Panic to fail.
+type SimpleStep<World> = Box<Send + Fn(&Cucumber<World>, &mut World, Vec<InvokeArgument>)>
+
+fn wrap<World>(test_body: SimpleStep<World>) -> Step<World> {
+  Box::new(|cuke, world, args| {
+    let result = panic::catch_unwind(|| test_body(cuke, world, args));
+    match result {
+      Ok(()) => InvokeResponse::Success,
+      Err("!!Cucumber secret pending error!!") => InvokeResponse::Pending,
+      Err(err) => InvokeResponse::fail_from_str(err)
+    }
+  })
 }
