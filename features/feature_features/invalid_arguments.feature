@@ -6,17 +6,14 @@ Feature: Invalid argument types
       """
         Given!(c, "^a step with non-matching args$", |_, _, (b,): (bool,)| {
           // Not reachable
-          InvokeResponse::Success
         });
 
         Given!(c, "^another step with unparseable table arg:$", |_, _, (s,): (String,)| {
           // Not reachable
-          InvokeResponse::Success
         });
 
         Given!(c, "^another step with unparseable args: \"(.*)\"$", |_, _, (u,): (u32,)| {
           // Not reachable
-          InvokeResponse::Success
         });
       """
     Then the project compiles

@@ -8,8 +8,13 @@ pub trait FromInvokeArgSet: Sized {
 #[derive(Debug, Clone, PartialEq)]
 pub enum InvokeArgSetError {
   // TODO: Investigate returning expected and actual type tokens here
-  TypeMismatch {arg_idx: u32},
-  ArgCountMismatch {expected: usize, actual: usize },
+  TypeMismatch {
+    arg_idx: u32,
+  },
+  ArgCountMismatch {
+    expected: usize,
+    actual: usize,
+  },
 }
 
 pub trait DestructurableSet: Sized {
@@ -25,15 +30,15 @@ impl DestructurableSet for Vec<InvokeArgument> {
 macro_rules! auto_define_for_tuple {
   ($count:expr; [$($t: ident),+]) => {
     impl <$($t,)+> FromInvokeArgSet for ($($t,)+) where $($t: FromInvokeArg),+ {
-      // Ignore counter being set by the last tuple
+// Ignore counter being set by the last tuple
       #[allow(unused_assignments)]
       fn from_invoke_arg_set(args: Vec<InvokeArgument>) -> Result<($($t,)+), InvokeArgSetError> {
         if args.len() != $count { return Err(InvokeArgSetError::ArgCountMismatch {expected: $count, actual: args.len() }) }
 
         let mut arg_iter = args.into_iter();
 
-        // Used for macro to know which arg a failure occurs on
-        //   Normally, this could be known statically, but macro can't count type args
+// Used for macro to know which arg a failure occurs on
+//   Normally, this could be known statically, but macro can't count type args
         let mut counter = 0;
 
         Ok(( $({
@@ -51,7 +56,12 @@ macro_rules! auto_define_for_tuple {
 
 impl FromInvokeArgSet for () {
   fn from_invoke_arg_set(args: Vec<InvokeArgument>) -> Result<(), InvokeArgSetError> {
-    if args.len() != 0 { return Err(InvokeArgSetError::ArgCountMismatch {expected: 0, actual: args.len() }) }
+    if args.len() != 0 {
+      return Err(InvokeArgSetError::ArgCountMismatch {
+        expected: 0,
+        actual: args.len(),
+      });
+    }
     Ok(())
   }
 }
@@ -94,7 +104,10 @@ mod test {
 
   #[test]
   fn tuple_3_can_be_destructured() {
-    let res = vec![InvokeArgument::String("hello".to_owned()), InvokeArgument::String("world".to_owned()), InvokeArgument::String("hello".to_owned())].destructure_set();
+    let res = vec![InvokeArgument::String("hello".to_owned()),
+                   InvokeArgument::String("world".to_owned()),
+                   InvokeArgument::String("hello".to_owned())]
+      .destructure_set();
 
     let (x, y, z): (String, String, String) = res.unwrap();
 
@@ -105,15 +118,23 @@ mod test {
 
   #[test]
   fn destructure_for_element_count_fails_correctly() {
-    let res: Result<(String, String, String), InvokeArgSetError> = vec![InvokeArgument::String("hello".to_owned())].destructure_set();
+    let res: Result<(String, String, String), InvokeArgSetError> =
+      vec![InvokeArgument::String("hello".to_owned())].destructure_set();
 
-    assert_eq!(res, Err(InvokeArgSetError::ArgCountMismatch { expected: 3, actual: 1}) );
+    assert_eq!(res,
+               Err(InvokeArgSetError::ArgCountMismatch {
+                 expected: 3,
+                 actual: 1,
+               }));
   }
 
   #[test]
   fn destructure_for_type_mismatch_fails_correctly() {
-    let res: Result<(bool, u32), InvokeArgSetError> = vec![InvokeArgument::String("true".to_owned()), InvokeArgument::String("not a u32".to_owned())].destructure_set();
+    let res: Result<(bool, u32), InvokeArgSetError> =
+      vec![InvokeArgument::String("true".to_owned()),
+           InvokeArgument::String("not a u32".to_owned())]
+        .destructure_set();
 
-    assert_eq!(res, Err(InvokeArgSetError::TypeMismatch {arg_idx: 1}) );
+    assert_eq!(res, Err(InvokeArgSetError::TypeMismatch { arg_idx: 1 }));
   }
 }

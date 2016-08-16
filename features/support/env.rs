@@ -5,6 +5,9 @@ pub struct CucumberWorld {
 
 impl CucumberWorld {
   pub fn new() -> CucumberWorld {
-    CucumberWorld { current_project: None, execute_result: None }
+    CucumberWorld {
+      current_project: None,
+      execute_result: None,
+    }
   }
 }

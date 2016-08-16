@@ -1,0 +1,5 @@
+match_block_trailing_comma = true
+report_fixme = "always"
+tab_spaces = 2
+reorder_imports = true
+wrap_comments = true

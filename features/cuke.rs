@@ -2,24 +2,17 @@
 extern crate cucumber;
 
 extern crate tempdir;
+extern crate itertools;
 
 mod step_definitions;
 mod support;
 
 use support::env::CucumberWorld;
 
-use step_definitions::{
-  project_steps
-};
+use step_definitions::project_steps;
 
-#[test]
 fn cuke() {
-  cucumber::start(
-    CucumberWorld::new(),
-    &[
-      &project_steps::register_steps,
-    ]
-  );
+  cucumber::start(CucumberWorld::new(), &[&project_steps::register_steps]);
 }
 
 fn main() {

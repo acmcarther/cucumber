@@ -3,26 +3,30 @@ use std::io::{self, Write};
 use std::fs::{DirBuilder, File};
 use std::env;
 use std::process::Command;
+use itertools::Itertools;
 
 pub struct Project {
-  dir: TempDir
+  dir: TempDir,
 }
 
 impl Project {
   pub fn set_steps(&mut self, steps: &str) {
     // TODO: Return result
-    let full_file = format!(
-      "
+    let full_file =
+      format!("
         use cucumber::definitions::registration::CucumberRegistrar;
-        use cucumber::event::response::InvokeResponse;
+        use \
+               cucumber::event::response::InvokeResponse;
         use cucumber::state::Cucumber;
 
-        #[allow(dead_code)]
-        pub fn register_steps(c: &mut CucumberRegistrar<u32>) {{
+        \
+               #[allow(dead_code)]
+        pub fn register_steps(c: &mut CucumberRegistrar<u32>) \
+               {{
           {}
         }}
-      ", steps
-      );
+      ",
+              steps);
     // TODO: handle
     let _ = File::create(self.dir.path().join("features/steps.rs"))
       .and_then(|mut file| file.write(full_file.as_bytes()));
@@ -40,21 +44,30 @@ impl Project {
           let err_code: i32 = output.status.code().unwrap();
           let out_str: String = String::from_utf8(output.stdout).unwrap();
           let err_str: String = String::from_utf8(output.stderr).unwrap();
-          Err(format!("Non-zero exit code for cargo build: {},\n stdout: {},\n stderr:{}", err_code, out_str, err_str))
+          Err(format!("Non-zero exit code for cargo build: {},\n stdout: {},\n stderr:{}",
+                      err_code,
+                      out_str,
+                      err_str))
         } else {
           Ok(())
         }
       })
   }
 
-  pub fn execute_feature(&mut self, scenario: &str) -> Result<String, String> {
+  pub fn execute_feature(&mut self, scenario: &str, args: &str) -> Result<String, String> {
     File::create(self.dir.path().join("features/test.feature"))
       .and_then(|mut file| file.write(scenario.as_bytes()))
       .map_err(|err| err.to_string())
       .and_then(|_| {
-        Command::new("cargo")
-          .arg("test")
-          .current_dir(self.dir.path())
+        let mut cmd = Command::new("cargo");
+
+        cmd.arg("test").arg("--test").arg("cuke").arg("--");
+
+        args.split_whitespace().foreach(|a| {
+          cmd.arg(a);
+        });
+
+        cmd.current_dir(self.dir.path())
           .output()
           .map_err(|err| err.to_string())
           .and_then(|output| {
@@ -62,7 +75,10 @@ impl Project {
               let err_code: i32 = output.status.code().unwrap();
               let out_str: String = String::from_utf8(output.stdout).unwrap();
               let err_str: String = String::from_utf8(output.stderr).unwrap();
-              Err(format!("Non-zero exit code for cargo test: {},\n stdout: {},\n stderr:{}", err_code, out_str, err_str))
+              Err(format!("Non-zero exit code for cargo test: {},\n stdout: {},\n stderr:{}",
+                          err_code,
+                          out_str,
+                          err_str))
             } else {
               Ok(String::from_utf8(output.stdout).unwrap())
             }
@@ -94,7 +110,10 @@ fn create_cargo_toml(dir: TempDir) -> io::Result<TempDir> {
         [[test]]
         name = \"cuke\"
         path = \"./features/cuke.rs\"
-      ", env::current_dir().unwrap().display()).as_bytes())
+        harness = false
+      ",
+                         env::current_dir().unwrap().display())
+        .as_bytes())
 
     })
     .map(|_| dir)
@@ -103,7 +122,7 @@ fn create_cargo_toml(dir: TempDir) -> io::Result<TempDir> {
 fn create_src(dir: TempDir) -> io::Result<TempDir> {
   DirBuilder::new()
     .create(dir.path().join("src"))
-    .and_then(|_| File::create(dir.path().join("src/lib.rs")) )
+    .and_then(|_| File::create(dir.path().join("src/lib.rs")))
     .and_then(|mut file| {
       file.write(b"
         pub fn run() { println!(\"I ran\"); }
@@ -115,7 +134,7 @@ fn create_src(dir: TempDir) -> io::Result<TempDir> {
 fn create_features(dir: TempDir) -> io::Result<TempDir> {
   DirBuilder::new()
     .create(dir.path().join("features"))
-    .and_then(|_| File::create(dir.path().join("features/cuke.rs")) )
+    .and_then(|_| File::create(dir.path().join("features/cuke.rs")))
     .and_then(|mut file| {
       file.write(b"
         extern crate test_cuke;
@@ -125,7 +144,6 @@ fn create_features(dir: TempDir) -> io::Result<TempDir> {
 
         mod steps;
 
-        #[test]
         fn main() {
           let world: u32 = 0;
           cucumber::start_with_addr(\"0.0.0.0:7879\", world, &[&steps::register_steps]);

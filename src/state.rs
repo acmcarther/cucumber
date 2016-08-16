@@ -1,4 +1,4 @@
-pub use regex::{Regex, Captures};
+pub use regex::{Captures, Regex};
 
 use std::collections::HashMap;
 
@@ -6,27 +6,38 @@ use event::response::InvokeResponse;
 use event::response::StepArg;
 use event::response::Step as ResponseStep;
 use event::request::InvokeArgument;
+use definitions::registration::SimpleStep;
 
 /// The trait steps must implement to be invokable
 ///
 /// As far as I can tell, this is unimplementable because of the blanket impl
-/// Generally, any closure closing over sendable data, and taking sendable arguments in the form
+/// Generally, any closure closing over sendable data, and taking sendable
+/// arguments in the form
 /// indicated should be implemented automatically by the blanket impl
-pub trait SendableStep<World>: Send + Fn(&Cucumber<World>, &mut World, Vec<InvokeArgument>) -> InvokeResponse {}
+pub trait SendableStep<World>
+  : Send + Fn(&Cucumber<World>, &mut World, Vec<InvokeArgument>) -> InvokeResponse
+  {
+}
 
-impl<T, World> SendableStep<World> for T where T: Send + Fn(&Cucumber<World>, &mut World, Vec<InvokeArgument>) -> InvokeResponse {}
+impl<T, World> SendableStep<World> for T
+  where T: Send + Fn(&Cucumber<World>, &mut World, Vec<InvokeArgument>) -> InvokeResponse
+{
+}
 
-pub type Step<World> = Box<SendableStep<World, Output=InvokeResponse>>;
+pub type Step<World> = Box<SendableStep<World, Output = InvokeResponse>>;
 
 pub type StepId = u32;
 
 /// The Cucumber state wrapper
 ///
-/// This struct maintains the list of primitive step components, and does the lookups to find and
+/// This struct maintains the list of primitive step components, and does the
+/// lookups to find and
 /// execute steps. It also maintains the current tags
 ///
-/// This struct is typically only used directly when invoking steps from other steps, as in the
-/// example. Otherwise, it is managed by the [WorldRunner](../runner/struct.WorldRunner.html)
+/// This struct is typically only used directly when invoking steps from other
+/// steps, as in the
+/// example. Otherwise, it is managed by the
+/// [WorldRunner](../runner/struct.WorldRunner.html)
 ///
 /// # Example
 ///
@@ -38,7 +49,10 @@ pub type StepId = u32;
 ///
 /// fn main() {
 ///   let mut cuke: Cucumber<u32> = Cucumber::new();
-///   cuke.insert_step("dummy_path".to_owned(), cucumber_regex::build("^test$"), Box::new(move |c: &Cucumber<u32>, world: &mut u32, _| {
+///   cuke.insert_step("dummy_path".to_owned(),
+/// cucumber_regex::build("^test$"), Box::new(move |c: &Cucumber<u32>,
+/// world:
+///     &mut u32, _| {
 ///     // Undefined step here will return a "no match" error
 ///     c.invoke("another step", world, None)
 ///   }));
@@ -48,26 +62,26 @@ pub type StepId = u32;
 pub struct Cucumber<World> {
   step_regexes: Vec<Regex>,
   step_ids: HashMap<String, (StepId, String)>,
-  steps: HashMap<StepId, Step<World>>,
-  pub tags: Vec<String>
+  steps: HashMap<StepId, SimpleStep<World>>,
+  pub tags: Vec<String>,
 }
 
-impl <World> Cucumber<World> {
-
+impl<World> Cucumber<World> {
   pub fn new() -> Cucumber<World> {
     Cucumber {
       step_regexes: Vec::new(),
       step_ids: HashMap::new(),
       steps: HashMap::new(),
-      tags: Vec::new()
+      tags: Vec::new(),
     }
   }
 
   /// Add a new step to the set of steps.
   ///
-  /// This method is typically executed by a [WorldRunner](../runner/struct.WorldRunner.html) when
+  /// This method is typically executed by a
+  /// [WorldRunner](../runner/struct.WorldRunner.html) when
   /// `#given`, `#when` or `#then` methods are called.
-  pub fn insert_step(&mut self, path: String, regex: Regex, step: Step<World>) {
+  pub fn insert_step(&mut self, path: String, regex: Regex, step: SimpleStep<World>) {
     let str_rep = regex.as_str().to_owned();
     self.step_regexes.push(regex);
 
@@ -80,7 +94,8 @@ impl <World> Cucumber<World> {
 
   /// Find a step or steps matching a given string.
   ///
-  /// This method is typically executed by a [WorldRunner](../runner/struct.WorldRunner.html) when
+  /// This method is typically executed by a
+  /// [WorldRunner](../runner/struct.WorldRunner.html) when
   /// trying to find a step corresponding to a string provided by the
   /// [Server](../server/struct.Server.html).
   pub fn find_match(&self, str: &str) -> Vec<ResponseStep> {
@@ -105,17 +120,38 @@ impl <World> Cucumber<World> {
       .collect()
   }
 
+  /// Set a step pending with a useful message
+  pub fn pending(&self, message: &str) {
+    panic!(InvokeResponse::pending_from_str(message));
+  }
+
+  /// Fails with a useful message
+  pub fn fail(&self, message: &str) {
+    panic!(InvokeResponse::fail_from_str(message));
+  }
+
+  /// Ends step execution successfully.
+  /// I have no idea why anyone would want to do this, but it fills out the
+  /// "pending, fail,
+  /// success" set.
+  pub fn succeed_immediately(&self) {
+    panic!(InvokeResponse::Success);
+  }
+
   /// Directly execute the step matched by a regular expression.
   ///
-  /// The most typical method applied on a Cucumber instance, this method allows steps to invoke
-  /// other steps. The final argument is for use with docstring arguments or tables.
-  pub fn invoke(&self, str: &str, world: &mut World, extra_arg: Option<InvokeArgument>) -> InvokeResponse {
+  /// The most typical method applied on a Cucumber instance, this method
+  /// allows steps to invoke
+  /// other steps. The final argument is for use with docstring arguments or
+  /// tables.
+  pub fn invoke(&self, str: &str, world: &mut World, extra_arg: Option<InvokeArgument>) {
     let mut matches = self.find_match(str);
     match matches.len() {
-      0 => InvokeResponse::fail_from_str("Direct invoke matched no steps"),
+      0 => panic!("Direct invoke matched no steps"),
       1 => {
         let response_step = matches.pop().unwrap();
-        let mut invoke_args: Vec<InvokeArgument> = response_step.args.into_iter()
+        let mut invoke_args: Vec<InvokeArgument> = response_step.args
+          .into_iter()
           .map(|arg| InvokeArgument::from_step_arg(arg))
           .collect();
 
@@ -123,17 +159,22 @@ impl <World> Cucumber<World> {
           invoke_args.push(extra_arg.unwrap());
         }
 
-        self.step(response_step.id.parse().unwrap()).unwrap()(&self, world, invoke_args)
+        self.step(response_step.id
+            .parse()
+            .unwrap())
+          .unwrap()(&self, world, invoke_args)
       },
-      _ => InvokeResponse::fail_from_str("Direct invoke matched more than one step")
+      _ => panic!("Direct invoke matched more than one step"),
     }
   }
 
   /// Retrieve a step based on its Id
   ///
-  /// This method is typically executed by a [WorldRunner](../runner/struct.WorldRunner.html) when
-  /// a request specifically invokes a step by Id. This is typical of the Cucumber Wire protocol.
-  pub fn step(&self, id: StepId) -> Option<&Step<World>> {
+  /// This method is typically executed by a
+  /// [WorldRunner](../runner/struct.WorldRunner.html) when
+  /// a request specifically invokes a step by Id. This is typical of the
+  /// Cucumber Wire protocol.
+  pub fn step(&self, id: StepId) -> Option<&SimpleStep<World>> {
     self.steps.get(&id)
   }
 }
@@ -142,7 +183,7 @@ impl <World> Cucumber<World> {
 mod test {
   use super::*;
   use cucumber_regex as regex;
-  use event::response::{InvokeResponse, StepArg};
+  use event::response::StepArg;
   use event::response::Step as ResponseStep;
 
   #[test]
@@ -157,7 +198,9 @@ mod test {
     type World = u32;
 
     let mut cucumber: Cucumber<World> = Cucumber::new();
-    cucumber.insert_step("file:line".to_owned(), regex::build("^example$"), Box::new(|_, _, _| { InvokeResponse::Success }));
+    cucumber.insert_step("file:line".to_owned(),
+                         regex::build("^example$"),
+                         Box::new(|_, _, _| ()));
   }
 
   #[test]
@@ -167,30 +210,38 @@ mod test {
     let mut world = 0;
 
     let mut cucumber: Cucumber<World> = Cucumber::new();
-    cucumber.insert_step("file:line".to_owned(), regex::build("^example$"), Box::new(|_, _, _| { InvokeResponse::Success }));
-    assert_eq!(cucumber.invoke("example", &mut world, None), InvokeResponse::Success);
+    cucumber.insert_step("file:line".to_owned(),
+                         regex::build("^example$"),
+                         Box::new(|_, _, _| ()));
+    cucumber.invoke("example", &mut world, None);
   }
 
   #[test]
+  #[should_panic(expected = "Direct invoke matched more than one step")]
   fn cuke_invoke_fails_on_multiple_match() {
     type World = u32;
 
     let mut world = 0;
 
     let mut cucumber: Cucumber<World> = Cucumber::new();
-    cucumber.insert_step("file:line".to_owned(), regex::build("^example$"), Box::new(|_, _, _| { InvokeResponse::Success }));
-    cucumber.insert_step("file:line".to_owned(), regex::build("^ex"), Box::new(|_, _, _| { InvokeResponse::Success }));
-    assert_eq!(cucumber.invoke("example", &mut world, None), InvokeResponse::fail_from_str("Direct invoke matched more than one step"));
+    cucumber.insert_step("file:line".to_owned(),
+                         regex::build("^example$"),
+                         Box::new(|_, _, _| ()));
+    cucumber.insert_step("file:line".to_owned(),
+                         regex::build("^ex"),
+                         Box::new(|_, _, _| ()));
+    cucumber.invoke("example", &mut world, None);
   }
 
   #[test]
+  #[should_panic(expected = "Direct invoke matched no steps")]
   fn cuke_invoke_fails_on_no_match() {
     type World = u32;
 
     let mut world = 0;
 
     let cucumber: Cucumber<World> = Cucumber::new();
-    assert_eq!(cucumber.invoke("example", &mut world, None), InvokeResponse::fail_from_str("Direct invoke matched no steps"));
+    cucumber.invoke("example", &mut world, None)
   }
 
   #[test]
@@ -198,32 +249,44 @@ mod test {
     type World = u32;
 
     let mut cucumber: Cucumber<World> = Cucumber::new();
-    cucumber.insert_step("file:line".to_owned(), regex::build("^example( stuff)? (\\d+)$"), Box::new(|_, _, _| { InvokeResponse::Success }));
+    cucumber.insert_step("file:line".to_owned(),
+                         regex::build("^example( stuff)? (\\d+)$"),
+                         Box::new(|_, _, _| ()));
     {
       let mut step_matches = cucumber.find_match("example 5");
       assert_eq!(step_matches.len(), 1);
       let step_details = step_matches.pop().unwrap();
-      assert_eq!(step_details, ResponseStep {
-        id: "0".to_owned(),
-        args: vec![
-          StepArg {val: None, pos: None},
-          StepArg {val: Some("5".to_owned()), pos: Some(8)}
-        ],
-        source: "file:line".to_owned()
-      })
+      assert_eq!(step_details,
+                 ResponseStep {
+                   id: "0".to_owned(),
+                   args: vec![StepArg {
+                                val: None,
+                                pos: None,
+                              },
+                              StepArg {
+                                val: Some("5".to_owned()),
+                                pos: Some(8),
+                              }],
+                   source: "file:line".to_owned(),
+                 })
     }
     {
       let mut step_matches = cucumber.find_match("example stuff 5");
       assert_eq!(step_matches.len(), 1);
       let step_details = step_matches.pop().unwrap();
-      assert_eq!(step_details, ResponseStep {
-        id: "0".to_owned(),
-        args: vec![
-          StepArg {val: Some(" stuff".to_owned()), pos: Some(7)},
-          StepArg {val: Some("5".to_owned()), pos: Some(14)}
-        ],
-        source: "file:line".to_owned()
-      })
+      assert_eq!(step_details,
+                 ResponseStep {
+                   id: "0".to_owned(),
+                   args: vec![StepArg {
+                                val: Some(" stuff".to_owned()),
+                                pos: Some(7),
+                              },
+                              StepArg {
+                                val: Some("5".to_owned()),
+                                pos: Some(14),
+                              }],
+                   source: "file:line".to_owned(),
+                 })
     }
   }
 }

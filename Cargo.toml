@@ -1,6 +1,6 @@
 [package]
 name = "cucumber"
-version = "0.1.3"
+version = "0.2.3"
 authors = ["Alex McArther <acmcarther@gmail.com>"]
 description = "Tooling for using Cucumber with Rust projects"
 documentation = "https://acmcarther.github.io/cucumber/cucumber/index.html"
@@ -36,3 +36,4 @@ itertools = "0.4.11"
 [[test]]
 name = "cuke"
 path = "./features/cuke.rs"
+harness = false

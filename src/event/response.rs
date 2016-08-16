@@ -1,6 +1,7 @@
 //! Contains responses for Gherkin interpreter (or Wire Protocol).
 //!
-//! Consumers mostly need to be concerned with [InvokeResponse](./enum.InvokeResponse.html), as it is the
+//! Consumers mostly need to be concerned with
+//! [InvokeResponse](./enum.InvokeResponse.html), as it is the
 //! return type of all step defintions.
 
 #[cfg(feature = "serde_macros")]
@@ -9,7 +10,7 @@ include!("response.rs.in");
 #[cfg(not(feature = "serde_macros"))]
 include!(concat!(env!("OUT_DIR"), "/event/response.rs"));
 
-use serde::{self, Serializer};
+use serde;
 use serde::ser::impls::TupleVisitor2;
 use serde::ser::MapVisitor;
 use std::fmt::Debug;
@@ -18,7 +19,8 @@ use std::fmt::Debug;
 // pub struct Step
 // pub struct FailMessage
 
-/// Types of responses produced by [runners](../../runner/struct.WorldRunner.html)
+/// Types of responses produced by
+/// [runners](../../runner/struct.WorldRunner.html)
 #[derive(Eq, PartialEq, Clone, Debug)]
 pub enum Response {
   StepMatches(StepMatchesResponse),
@@ -34,12 +36,8 @@ impl Serialize for Response {
       &Response::StepMatches(ref response) => {
         let empty_vec = Vec::new();
         let body = match response {
-          &StepMatchesResponse::NoMatch => {
-            &empty_vec
-          },
-          &StepMatchesResponse::Match(ref steps) => {
-            steps
-          },
+          &StepMatchesResponse::NoMatch => &empty_vec,
+          &StepMatchesResponse::Match(ref steps) => steps,
         };
         s.serialize_seq(TupleVisitor2::new(&("success", body)))
       },
@@ -48,20 +46,14 @@ impl Serialize for Response {
           &InvokeResponse::Pending(ref message) => {
             s.serialize_seq(TupleVisitor2::new(&("pending", message)))
           },
-          &InvokeResponse::Success => {
-            s.serialize_seq(Some(&("success")))
-          },
+          &InvokeResponse::Success => s.serialize_seq(Some(&("success"))),
           &InvokeResponse::Fail(ref message) => {
             s.serialize_seq(TupleVisitor2::new(&("fail", message)))
           },
         }
       },
-      &Response::BeginScenario => {
-        s.serialize_seq(Some(&("success")))
-      },
-      &Response::EndScenario => {
-        s.serialize_seq(Some(&("success")))
-      },
+      &Response::BeginScenario => s.serialize_seq(Some(&("success"))),
+      &Response::EndScenario => s.serialize_seq(Some(&("success"))),
       &Response::SnippetText(ref text) => {
         s.serialize_seq(TupleVisitor2::new(&("success", text.clone())))
       },
@@ -72,45 +64,44 @@ impl Serialize for Response {
 #[derive(Eq, PartialEq, Clone, Debug)]
 pub struct StepArg {
   pub val: Option<String>,
-  pub pos: Option<u32>
+  pub pos: Option<u32>,
 }
 
 impl Serialize for StepArg {
   fn serialize<S: serde::ser::Serializer>(&self, s: &mut S) -> Result<(), S::Error> {
-    s.serialize_struct("StepArg", StepArgVisitor {
-      value: self,
-      state: 0
-    })
+    s.serialize_struct("StepArg",
+                       StepArgVisitor {
+                         value: self,
+                         state: 0,
+                       })
   }
 }
 
 struct StepArgVisitor<'a> {
   value: &'a StepArg,
-  state: u8
+  state: u8,
 }
 
 impl<'a> MapVisitor for StepArgVisitor<'a> {
   fn visit<S>(&mut self, serializer: &mut S) -> Result<Option<()>, S::Error>
-      where S: serde::Serializer
+    where S: serde::Serializer
   {
     match self.state {
       0 => {
         self.state += 1;
         match self.value.val {
           Some(ref v) => Ok(Some(try!(serializer.serialize_struct_elt("val", v.clone())))),
-          None => Ok(Some(try!(serializer.serialize_struct_elt("val", ()))))
+          None => Ok(Some(try!(serializer.serialize_struct_elt("val", ())))),
         }
       },
       1 => {
         self.state += 1;
         match self.value.pos {
           Some(ref v) => Ok(Some(try!(serializer.serialize_struct_elt("pos", v.clone())))),
-          None => Ok(Some(try!(serializer.serialize_struct_elt("pos", ()))))
+          None => Ok(Some(try!(serializer.serialize_struct_elt("pos", ())))),
         }
       },
-      _ => {
-        Ok(None)
-      },
+      _ => Ok(None),
     }
   }
 }
@@ -124,25 +115,29 @@ impl<'a> MapVisitor for StepArgVisitor<'a> {
 #[derive(Eq, PartialEq, Clone, Debug)]
 pub enum StepMatchesResponse {
   NoMatch,
-  Match(Vec<Step>)
+  Match(Vec<Step>),
 }
 
 
-/// The low level type capturing the possible outcomes a step invocation may have.
+/// The low level type capturing the possible outcomes a step invocation may
+/// have.
 ///
 /// Typical instantiation of this type will be done using the helpers provided.
 ///
-/// This type is designed to be heavily composable, as it is the form many operations against state
-/// will take. If it doesn't suit a particular use case, that use case was probably not conceived of and should be included!
+/// This type is designed to be heavily composable, as it is the form many
+/// operations against state
+/// will take. If it doesn't suit a particular use case, that use case was
+/// probably not conceived of and should be included!
 // ["pending", "I'll do it later"]
 // ["success"]
-// ["fail", {"message": "The wires are down", "exception": "Some.Foreign.ExceptionType"}]
+// ["fail", {"message": "The wires are down", "exception":
+// "Some.Foreign.ExceptionType"}]
 #[allow(dead_code)]
 #[derive(Eq, PartialEq, Clone, Debug)]
 pub enum InvokeResponse {
   Pending(String),
   Success,
-  Fail(FailMessage)
+  Fail(FailMessage),
 }
 
 impl InvokeResponse {
@@ -183,7 +178,8 @@ impl InvokeResponse {
     }
   }
 
-  /// Return an InvokeResponse reflecting a boolean outcome with a custom message
+  /// Return an InvokeResponse reflecting a boolean outcome with a custom
+  /// message
   pub fn expect(b: bool, fail_msg: &str) -> InvokeResponse {
     if b {
       InvokeResponse::Success
@@ -196,15 +192,16 @@ impl InvokeResponse {
   pub fn and(self, other: InvokeResponse) -> InvokeResponse {
     match self {
       InvokeResponse::Success => other,
-      _ => self
+      _ => self,
     }
   }
 
   /// Compose InvokeResponses with "or" logic, exiting on success
   pub fn or(self, other: InvokeResponse) -> InvokeResponse {
     match self {
-      InvokeResponse::Fail(_) | InvokeResponse::Pending(_) => other,
-      _ => self
+      InvokeResponse::Fail(_) |
+      InvokeResponse::Pending(_) => other,
+      _ => self,
     }
   }
 }
@@ -220,7 +217,8 @@ mod test {
     let not_eq = InvokeResponse::check_eq(1, 2);
 
     assert_eq!(eq, InvokeResponse::Success);
-    assert_eq!(not_eq, InvokeResponse::fail_from_str("Value [1] was not equal to [2]"));
+    assert_eq!(not_eq,
+               InvokeResponse::fail_from_str("Value [1] was not equal to [2]"));
   }
 
   #[test]
@@ -228,7 +226,8 @@ mod test {
     let eq = InvokeResponse::check_not_eq(1, 1);
     let not_eq = InvokeResponse::check_not_eq(1, 2);
 
-    assert_eq!(eq, InvokeResponse::fail_from_str("Value [1] was equal to [1]"));
+    assert_eq!(eq,
+               InvokeResponse::fail_from_str("Value [1] was equal to [1]"));
     assert_eq!(not_eq, InvokeResponse::Success);
   }
 
@@ -238,7 +237,8 @@ mod test {
     let f = InvokeResponse::check(false);
 
     assert_eq!(t, InvokeResponse::Success);
-    assert_eq!(f, InvokeResponse::fail_from_str("invoke response check failed"));
+    assert_eq!(f,
+               InvokeResponse::fail_from_str("invoke response check failed"));
   }
 
   #[test]
@@ -253,55 +253,39 @@ mod test {
   #[test]
   fn invoke_response_and() {
     // T & T = T
-    assert_eq!(
-      InvokeResponse::Success,
-      InvokeResponse::Success.and(InvokeResponse::Success)
-    );
+    assert_eq!(InvokeResponse::Success,
+               InvokeResponse::Success.and(InvokeResponse::Success));
 
     // T & F = F
-    assert_eq!(
-      InvokeResponse::fail_from_str("msg"),
-      InvokeResponse::Success.and(InvokeResponse::fail_from_str("msg"))
-    );
+    assert_eq!(InvokeResponse::fail_from_str("msg"),
+               InvokeResponse::Success.and(InvokeResponse::fail_from_str("msg")));
 
     // F & T = F
-    assert_eq!(
-      InvokeResponse::fail_from_str("msg"),
-      InvokeResponse::fail_from_str("msg").and(InvokeResponse::Success)
-    );
+    assert_eq!(InvokeResponse::fail_from_str("msg"),
+               InvokeResponse::fail_from_str("msg").and(InvokeResponse::Success));
 
     // F1 & F2 = F1
-    assert_eq!(
-      InvokeResponse::fail_from_str("msg1"),
-      InvokeResponse::fail_from_str("msg1").and(InvokeResponse::fail_from_str("msg2"))
-    );
+    assert_eq!(InvokeResponse::fail_from_str("msg1"),
+               InvokeResponse::fail_from_str("msg1").and(InvokeResponse::fail_from_str("msg2")));
   }
 
   #[test]
   fn invoke_response_or() {
     // T & T = T
-    assert_eq!(
-      InvokeResponse::Success,
-      InvokeResponse::Success.or(InvokeResponse::Success)
-    );
+    assert_eq!(InvokeResponse::Success,
+               InvokeResponse::Success.or(InvokeResponse::Success));
 
     // T & F = T
-    assert_eq!(
-      InvokeResponse::Success,
-      InvokeResponse::Success.or(InvokeResponse::fail_from_str("msg"))
-    );
+    assert_eq!(InvokeResponse::Success,
+               InvokeResponse::Success.or(InvokeResponse::fail_from_str("msg")));
 
     // F & T = T
-    assert_eq!(
-      InvokeResponse::Success,
-      InvokeResponse::fail_from_str("msg").or(InvokeResponse::Success)
-    );
+    assert_eq!(InvokeResponse::Success,
+               InvokeResponse::fail_from_str("msg").or(InvokeResponse::Success));
 
     // F1 & F2 = F2
-    assert_eq!(
-      InvokeResponse::fail_from_str("msg2"),
-      InvokeResponse::fail_from_str("msg1").or(InvokeResponse::fail_from_str("msg2"))
-    );
+    assert_eq!(InvokeResponse::fail_from_str("msg2"),
+               InvokeResponse::fail_from_str("msg1").or(InvokeResponse::fail_from_str("msg2")));
   }
 
   #[test]
@@ -313,9 +297,20 @@ mod test {
 
   #[test]
   fn it_serializes_step_matches_match() {
-    let response = Response::StepMatches(StepMatchesResponse::Match(vec!(Step {id: "1".to_owned(), source: "test".to_owned(), args: vec!(StepArg { val: Some("arg".to_owned()), pos: Some(0)}) })));
+    let response = Response::StepMatches(StepMatchesResponse::Match(vec![Step {
+                                                                           id: "1".to_owned(),
+                                                                           source: "test"
+                                                                             .to_owned(),
+                                                                           args: vec![StepArg {
+                                                                                   val: Some("arg"
+                                                                                       .to_owned()),
+                                                                                   pos: Some(0),
+                                                                               }],
+                                                                         }]));
     let string = serde_json::to_string(&response);
-    assert_eq!(string.unwrap(), "[\"success\",[{\"id\":\"1\",\"args\":[{\"val\":\"arg\",\"pos\":0}],\"source\":\"test\"}]]");
+    assert_eq!(string.unwrap(),
+               "[\"success\",[{\"id\":\"1\",\"args\":[{\"val\":\"arg\",\"pos\":0}],\"source\":\
+                \"test\"}]]");
   }
 
 
@@ -337,7 +332,8 @@ mod test {
   fn it_serializes_invoke_fail() {
     let response = Response::Invoke(InvokeResponse::fail_from_str("stuff is broken"));
     let string = serde_json::to_string(&response);
-    assert_eq!(string.unwrap(), "[\"fail\",{\"message\":\"stuff is broken\",\"exception\":\"\"}]");
+    assert_eq!(string.unwrap(),
+               "[\"fail\",{\"message\":\"stuff is broken\",\"exception\":\"\"}]");
   }
 
   #[test]

@@ -1,7 +1,9 @@
 //! Contains requests made by Gherkin interpreter (or Wire Protocol).
 //!
-//! Consumers will interact with [InvokeArgument](./enum.InvokeArgument.html) if using
-//! [Cucumber's](../../state/struct.Cucumber.html) direct invoke capability with tables or
+//! Consumers will interact with [InvokeArgument](./enum.InvokeArgument.html)
+//! if using
+//! [Cucumber's](../../state/struct.Cucumber.html) direct invoke capability
+//! with tables or
 //! docstrings.
 
 #[cfg(feature = "serde_macros")]
@@ -54,13 +56,13 @@ impl Visitor for RequestVisitor {
     match cmd_type {
       None => Err(V::Error::invalid_length(0)),
       Some(command) => {
-        match command.as_ref(){
+        match command.as_ref() {
           "step_matches" => {
             let payload = try!(_visitor.visit::<StepMatchesRequest>());
             try!(_visitor.end());
             match payload {
               None => Err(V::Error::invalid_length(1)),
-              Some(payload) => Ok(Request::StepMatches(payload))
+              Some(payload) => Ok(Request::StepMatches(payload)),
             }
           },
           "invoke" => {
@@ -68,7 +70,7 @@ impl Visitor for RequestVisitor {
             try!(_visitor.end());
             match payload {
               None => Err(V::Error::invalid_length(1)),
-              Some(payload) => Ok(Request::Invoke(payload))
+              Some(payload) => Ok(Request::Invoke(payload)),
             }
           },
           "begin_scenario" => {
@@ -76,7 +78,7 @@ impl Visitor for RequestVisitor {
             try!(_visitor.end());
             match payload {
               None => Ok(Request::BeginScenario(BeginScenarioRequest { tags: Vec::new() })),
-              Some(payload) => Ok(Request::BeginScenario(payload))
+              Some(payload) => Ok(Request::BeginScenario(payload)),
             }
           },
           "end_scenario" => {
@@ -84,7 +86,7 @@ impl Visitor for RequestVisitor {
             try!(_visitor.end());
             match payload {
               None => Ok(Request::EndScenario(EndScenarioRequest { tags: Vec::new() })),
-              Some(payload) => Ok(Request::EndScenario(payload))
+              Some(payload) => Ok(Request::EndScenario(payload)),
             }
           },
           "snippet_text" => {
@@ -92,10 +94,10 @@ impl Visitor for RequestVisitor {
             try!(_visitor.end());
             match payload {
               None => Err(V::Error::invalid_length(1)),
-              Some(payload) => Ok(Request::SnippetText(payload))
+              Some(payload) => Ok(Request::SnippetText(payload)),
             }
           },
-          _ => Err(V::Error::custom("Unknown command type as first value"))
+          _ => Err(V::Error::custom("Unknown command type as first value")),
         }
       },
     }
@@ -104,13 +106,15 @@ impl Visitor for RequestVisitor {
 
 /// The low level type capturing the possible values a step may provide.
 ///
-/// Normal regex arguments as well as docstrings come in the form of the String variant. Conversion
-/// to other types is done at later stages. Tables are represented as `Vec<Vec<String>>`
+/// Normal regex arguments as well as docstrings come in the form of the String
+/// variant. Conversion
+/// to other types is done at later stages. Tables are represented as
+/// `Vec<Vec<String>>`
 #[derive(Eq, PartialEq, Clone, Debug)]
 pub enum InvokeArgument {
   String(String),
   None,
-  Table(Vec<Vec<String>>)
+  Table(Vec<Vec<String>>),
 }
 
 impl InvokeArgument {
@@ -121,7 +125,7 @@ impl InvokeArgument {
   pub fn from_step_arg(arg: StepArg) -> InvokeArgument {
     match arg.val {
       Some(v) => InvokeArgument::String(v),
-      None => InvokeArgument::None
+      None => InvokeArgument::None,
     }
   }
 }
@@ -161,9 +165,10 @@ mod test {
     let res = serde_json::from_str(json);
     match res.unwrap() {
       Request::StepMatches(payload) => {
-        assert_eq!(payload, StepMatchesRequest {name_to_match: "we're all wired".to_owned()})
+        assert_eq!(payload,
+                   StepMatchesRequest { name_to_match: "we're all wired".to_owned() })
       },
-      _ => panic!("result was not StepMatches type")
+      _ => panic!("result was not StepMatches type"),
     }
   }
 
@@ -173,9 +178,13 @@ mod test {
     let res = serde_json::from_str(json);
     match res.unwrap() {
       Request::Invoke(payload) => {
-        assert_eq!(payload, InvokeRequest {id: "1".to_owned(), args: Vec::new()})
+        assert_eq!(payload,
+                   InvokeRequest {
+                     id: "1".to_owned(),
+                     args: Vec::new(),
+                   })
       },
-      _ => panic!("result was not Invoke type")
+      _ => panic!("result was not Invoke type"),
     }
   }
 
@@ -186,25 +195,34 @@ mod test {
     println!("{:?}", res);
     match res.unwrap() {
       Request::Invoke(payload) => {
-        assert_eq!(payload, InvokeRequest {id: "1".to_owned(), args: vec!(InvokeArgument::from_str("wired"))})
+        assert_eq!(payload,
+                   InvokeRequest {
+                     id: "1".to_owned(),
+                     args: vec![InvokeArgument::from_str("wired")],
+                   })
       },
-      _ => panic!("result was not Invoke type")
+      _ => panic!("result was not Invoke type"),
     }
   }
 
   #[test]
   fn read_invoke_complicated_args() {
-    let json = "[\"invoke\", {\"id\":\"1\", \"args\": [\"we're\", [[\"wired\"],[\"high\"],[\"happy\"]]]}]";
+    let json = "[\"invoke\", {\"id\":\"1\", \"args\": [\"we're\", \
+                [[\"wired\"],[\"high\"],[\"happy\"]]]}]";
     let res = serde_json::from_str(json);
     println!("{:?}", res);
     match res.unwrap() {
       Request::Invoke(payload) => {
-        assert_eq!(payload, InvokeRequest {id: "1".to_owned(), args: vec!(
-              InvokeArgument::from_str("we're"),
-              InvokeArgument::Table(vec!(vec!("wired".to_owned()), vec!("high".to_owned()), vec!("happy".to_owned())))
-              )})
+        assert_eq!(payload,
+                   InvokeRequest {
+                     id: "1".to_owned(),
+                     args: vec![InvokeArgument::from_str("we're"),
+                                InvokeArgument::Table(vec![vec!["wired".to_owned()],
+                                                           vec!["high".to_owned()],
+                                                           vec!["happy".to_owned()]])],
+                   })
       },
-      _ => panic!("result was not Invoke type")
+      _ => panic!("result was not Invoke type"),
     }
   }
 
@@ -214,9 +232,9 @@ mod test {
     let res = serde_json::from_str(json);
     match res.unwrap() {
       Request::BeginScenario(payload) => {
-        assert_eq!(payload, BeginScenarioRequest {tags: Vec::new()})
+        assert_eq!(payload, BeginScenarioRequest { tags: Vec::new() })
       },
-      _ => panic!("result was not BeginScenario type")
+      _ => panic!("result was not BeginScenario type"),
     }
   }
 
@@ -226,9 +244,10 @@ mod test {
     let res = serde_json::from_str(json);
     match res.unwrap() {
       Request::BeginScenario(payload) => {
-        assert_eq!(payload, BeginScenarioRequest {tags: vec!("hello".to_owned())})
+        assert_eq!(payload,
+                   BeginScenarioRequest { tags: vec!["hello".to_owned()] })
       },
-      _ => panic!("result was not BeginScenario type")
+      _ => panic!("result was not BeginScenario type"),
     }
   }
 
@@ -237,10 +256,8 @@ mod test {
     let json = "[\"end_scenario\"]";
     let res = serde_json::from_str(json);
     match res.unwrap() {
-      Request::EndScenario(payload) => {
-        assert_eq!(payload, EndScenarioRequest {tags: Vec::new()})
-      },
-      _ => panic!("result was not EndScenario type")
+      Request::EndScenario(payload) => assert_eq!(payload, EndScenarioRequest { tags: Vec::new() }),
+      _ => panic!("result was not EndScenario type"),
     }
   }
 
@@ -250,21 +267,28 @@ mod test {
     let res = serde_json::from_str(json);
     match res.unwrap() {
       Request::EndScenario(payload) => {
-        assert_eq!(payload, EndScenarioRequest {tags: vec!("hello".to_owned())})
+        assert_eq!(payload,
+                   EndScenarioRequest { tags: vec!["hello".to_owned()] })
       },
-      _ => panic!("result was not EndScenario type")
+      _ => panic!("result was not EndScenario type"),
     }
   }
 
   #[test]
   fn read_snippet_text() {
-    let json = "[\"snippet_text\", {\"step_keyword\": \"Given\", \"multiline_arg_class\":\"\", \"step_name\":\"we're all wired\"}]";
+    let json = "[\"snippet_text\", {\"step_keyword\": \"Given\", \"multiline_arg_class\":\"\", \
+                \"step_name\":\"we're all wired\"}]";
     let res = serde_json::from_str(json);
     match res.unwrap() {
       Request::SnippetText(payload) => {
-        assert_eq!(payload, SnippetTextRequest {step_keyword: "Given".to_owned(), multiline_arg_class: "".to_owned(), step_name: "we're all wired".to_owned()})
+        assert_eq!(payload,
+                   SnippetTextRequest {
+                     step_keyword: "Given".to_owned(),
+                     multiline_arg_class: "".to_owned(),
+                     step_name: "we're all wired".to_owned(),
+                   })
       },
-      _ => panic!("result was not SnippetText type")
+      _ => panic!("result was not SnippetText type"),
     }
   }
 }

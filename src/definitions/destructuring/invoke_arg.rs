@@ -16,7 +16,9 @@ pub trait FromInvokeArg: Sized {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct ImproperInvokeArgError { _priv: () }
+pub struct ImproperInvokeArgError {
+  _priv: (),
+}
 
 // NOTE: This is a stopgap for impl specialization
 //   The underlying issue is that FromInvokeArg can't be impld for all FromStr
@@ -39,7 +41,9 @@ macro_rules! impl_for_from_str {
   }
 }
 
-impl <T> FromInvokeArg for Option<T> where T: FromInvokeArg {
+impl<T> FromInvokeArg for Option<T>
+  where T: FromInvokeArg
+{
   type Err = ImproperInvokeArgError;
 
   fn from_invoke_arg(arg: InvokeArgument) -> Result<Option<T>, ImproperInvokeArgError> {
@@ -48,9 +52,9 @@ impl <T> FromInvokeArg for Option<T> where T: FromInvokeArg {
       e @ InvokeArgument::String(_) => {
         T::from_invoke_arg(e)
           .map(|r| Some(r))
-          .map_err(|_| ImproperInvokeArgError { _priv: ()})
+          .map_err(|_| ImproperInvokeArgError { _priv: () })
       },
-      _ => Err(ImproperInvokeArgError { _priv: () })
+      _ => Err(ImproperInvokeArgError { _priv: () }),
     }
   }
 }
@@ -72,12 +76,13 @@ impl FromInvokeArg for String {
   fn from_invoke_arg(arg: InvokeArgument) -> Result<String, ImproperInvokeArgError> {
     match arg {
       InvokeArgument::String(val) => Ok(val),
-      _ => Err(ImproperInvokeArgError { _priv: () })
+      _ => Err(ImproperInvokeArgError { _priv: () }),
     }
   }
 }
 
-// NOTE: Rules for booleans are a bit unconventional to facilitiate easy use of optional captures:
+// NOTE: Rules for booleans are a bit unconventional to facilitiate easy use of
+// optional captures:
 impl FromInvokeArg for bool {
   type Err = ImproperInvokeArgError;
 
@@ -87,10 +92,10 @@ impl FromInvokeArg for bool {
       InvokeArgument::String(val) => {
         match val.as_ref() {
           "false" => Ok(false),
-          _ => Ok(true)
+          _ => Ok(true),
         }
       },
-      _ => Err(ImproperInvokeArgError { _priv: () })
+      _ => Err(ImproperInvokeArgError { _priv: () }),
     }
   }
 }
@@ -101,7 +106,7 @@ impl FromInvokeArg for Vec<Vec<String>> {
   fn from_invoke_arg(arg: InvokeArgument) -> Result<Vec<Vec<String>>, ImproperInvokeArgError> {
     match arg {
       InvokeArgument::Table(val) => Ok(val),
-      _ => Err(ImproperInvokeArgError { _priv: () })
+      _ => Err(ImproperInvokeArgError { _priv: () }),
     }
   }
 }
@@ -113,7 +118,8 @@ mod test {
 
   #[test]
   fn wrong_type_destructure_fails_correctly() {
-    let res: Result<u32, ImproperInvokeArgError> = InvokeArgument::String("hello".to_owned()).destructure();
+    let res: Result<u32, ImproperInvokeArgError> = InvokeArgument::String("hello".to_owned())
+      .destructure();
 
     assert_eq!(res, Err(ImproperInvokeArgError { _priv: () }));
   }
@@ -127,7 +133,8 @@ mod test {
 
   #[test]
   fn table_can_be_destructured() {
-    let res: Vec<Vec<String>> = InvokeArgument::Table(vec![vec!["hello".to_owned()]]).destructure().unwrap();
+    let res: Vec<Vec<String>> =
+      InvokeArgument::Table(vec![vec!["hello".to_owned()]]).destructure().unwrap();
 
     assert_eq!(res, vec![vec!["hello".to_owned()]]);
   }
@@ -137,7 +144,8 @@ mod test {
 
     #[test]
     fn bool_doesnt_parse_from_table() {
-      let res: Result<bool, ImproperInvokeArgError> = InvokeArgument::Table(vec![vec!["hello".to_owned()]]).destructure();
+      let res: Result<bool, ImproperInvokeArgError> =
+        InvokeArgument::Table(vec![vec!["hello".to_owned()]]).destructure();
 
       assert_eq!(res, Err(ImproperInvokeArgError { _priv: () }));
     }

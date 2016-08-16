@@ -5,11 +5,11 @@ Feature: Calling steps within steps
     And the steps
       """
         When!(c, "^I get invoked indirectly$", |_, _, _| {
-          InvokeResponse::fail_from_str("Indirect step got invoked!")
+          panic!("Indirect step got invoked!");
         });
 
         When!(c, "^I invoke a step indirectly$", |cuke: &Cucumber<u32>, world: &mut u32, _| {
-          cuke.invoke("I get invoked indirectly", world, None)
+          cuke.invoke("I get invoked indirectly", world, None);
         });
       """
     Then the project compiles

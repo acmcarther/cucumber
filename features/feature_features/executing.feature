@@ -5,27 +5,24 @@ Feature: Executing Features
     And the steps
       """
         Given!(c, "^a passing given step$", |_, _, _| {
-          InvokeResponse::Success
         });
 
         When!(c, "^a passing when step$", |_, _, _| {
-          InvokeResponse::Success
         });
 
         Then!(c, "^a passing then step$", |_, _, _| {
-          InvokeResponse::Success
         });
 
         Given!(c, "^a failing given step$", |_, _, _| {
-          InvokeResponse::fail_from_str("Given Step Failed")
+          panic!("Given Step Failed");
         });
 
         When!(c, "^a failing when step$", |_, _, _| {
-          InvokeResponse::fail_from_str("When Step Failed")
+          panic!("When Step Failed");
         });
 
         Then!(c, "^a failing then step$", |_, _, _| {
-          InvokeResponse::fail_from_str("Then Step Failed")
+          panic!("Then Step Failed");
         });
       """
     Then the project compiles

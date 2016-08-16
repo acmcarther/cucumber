@@ -1,6 +1,6 @@
 use std::io::{BufRead, BufReader, Write};
-use std::sync::mpsc::{Sender, channel, TryRecvError};
-use std::sync::{Barrier, Arc};
+use std::sync::mpsc::{Sender, TryRecvError, channel};
+use std::sync::{Arc, Barrier};
 use std::time::Duration;
 use std::thread::{self, JoinHandle};
 use std::net::TcpListener;
@@ -11,12 +11,17 @@ use event::request::Request;
 
 use serde_json;
 
-/// The interface between an external Gherkin parser and internal [Cucumber state](../state/struct.Cucumber.html)
+/// The interface between an external Gherkin parser and internal [Cucumber
+/// state](../state/struct.Cucumber.html)
 ///
-/// Provided with a [CommandRunner](../runner/trait.CommandRunner.html), typically a
-/// [WorldRunner](../runner/struct.WorldRunner.html), this struct cna be started and will monitor for
-/// incoming Cucumber Wire Protocol traffic. This should not need to be instantiated directly in
-/// most cases, as [the start function](../fn.start.html) addresses the typical use-case.
+/// Provided with a [CommandRunner](../runner/trait.CommandRunner.html),
+/// typically a
+/// [WorldRunner](../runner/struct.WorldRunner.html), this struct cna be
+/// started and will monitor for
+/// incoming Cucumber Wire Protocol traffic. This should not need to be
+/// instantiated directly in
+/// most cases, as [the start function](../fn.start.html) addresses the typical
+/// use-case.
 ///
 /// # Example
 ///
@@ -46,19 +51,24 @@ pub struct Server<R: CommandRunner + Send> {
 
 /// An "unplugged" return value from server start, for compiler reasons
 ///
-/// The "correct" return value for [Server#start](./struct.Server.html#method.start) is this server handle.
-///   However, it yields a weird linker error on stable when methods are invoked on it when the crate is imported (so not on local tests).
-///   Therefore, we're currently returning the components of this structure as a tuple for now.
+/// The "correct" return value for
+/// [Server#start](./struct.Server.html#method.start) is this server handle.
+/// However, it yields a weird linker error on stable when methods are
+/// invoked on it when the crate is imported (so not on local tests).
+/// Therefore, we're currently returning the components of this structure as
+/// a tuple for now.
 ///
-/// See build: https://travis-ci.org/acmcarther/cucumber/jobs/116256537  
-/// Example Error  
+/// See build: https://travis-ci.org/acmcarther/cucumber/jobs/116256537
+/// Example Error
 /// ```
-///  /home/travis/build/acmcarther/cucumber-rs/examples/calculator/features/cuke.rs:31: undefined reference to `server::ServerHandle::wait::hd35f2fdfe2f62e1dyv
+/// /home/travis/build/acmcarther/cucumber-rs/examples/calculator/features/cuke.
+/// rs:31: undefined reference to
+/// `server::ServerHandle::wait::hd35f2fdfe2f62e1dyv
 /// ```
 ///
 pub struct ServerHandle {
   kill_sender: Sender<()>,
-  handle: JoinHandle<()>
+  handle: JoinHandle<()>,
 }
 
 impl ServerHandle {
@@ -73,18 +83,16 @@ impl ServerHandle {
   }
 }
 
-impl <R: CommandRunner + Send> Server<R> {
-
+impl<R: CommandRunner + Send> Server<R> {
   #[allow(dead_code)]
   pub fn new(runner: R) -> Server<R> {
-    Server {
-      runner: runner
-    }
+    Server { runner: runner }
   }
 
   #[allow(dead_code)]
   pub fn start(mut self, addr: Option<&'static str>) -> (JoinHandle<()>, Sender<()>)
-    where R: 'static {
+    where R: 'static
+  {
     let addr = addr.unwrap_or("0.0.0.0:7878");
     let (stop_tx, stop_rx) = channel();
     let main_barrier = Arc::new(Barrier::new(2));
@@ -98,16 +106,15 @@ impl <R: CommandRunner + Send> Server<R> {
 
       // Configure tcp stream
       let (mut stream, _) = listener.accept().unwrap();
-      stream.set_read_timeout(Some(Duration::new(1,0))).unwrap();
+      stream.set_read_timeout(Some(Duration::new(1, 0))).unwrap();
       let mut buffered_reader = BufReader::new(stream.try_clone().unwrap());
 
       let mut running = true;
       while running {
         // Check for recv stop signal
         match stop_rx.try_recv() {
-          Ok(()) | Err(TryRecvError::Disconnected) => {
-            running = false
-          },
+          Ok(()) |
+          Err(TryRecvError::Disconnected) => running = false,
           _ => {
             // Read request from wire
             let mut body = String::new();
@@ -120,13 +127,15 @@ impl <R: CommandRunner + Send> Server<R> {
                 match request {
                   Ok(req_body) => {
                     let response = self.runner.execute_cmd(req_body);
-                    let _ = stream.write(format!("{}\n", serde_json::to_string(&response).unwrap()).as_bytes());
-                  }
-                  _ => {}
+                    let _ =
+                      stream.write(format!("{}\n", serde_json::to_string(&response).unwrap())
+                        .as_bytes());
+                  },
+                  _ => {},
                 }
               }
             });
-          }
+          },
         }
       }
     });
@@ -148,11 +157,11 @@ mod test {
   use std::io::BufRead;
 
   use event::request::Request;
-  use event::response::{Response, InvokeResponse, StepMatchesResponse};
+  use event::response::{InvokeResponse, Response, StepMatchesResponse};
 
   #[test]
   fn it_makes_a_server() {
-    let server = Server::new(|_| {Response::BeginScenario});
+    let server = Server::new(|_| Response::BeginScenario);
     let (handle, stop_tx) = server.start(Some("0.0.0.0:1234"));
     let _ = TcpStream::connect("0.0.0.0:1234").unwrap();
 
