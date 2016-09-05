@@ -1,13 +1,13 @@
 [package]
 name = "cucumber"
-version = "0.2.4"
+version = "0.3.0"
 authors = ["Alex McArther <acmcarther@gmail.com>"]
 description = "Tooling for using Cucumber with Rust projects"
 documentation = "https://acmcarther.github.io/cucumber/cucumber/index.html"
 repository = "https://github.com/acmcarther/cucumber"
 license = "MIT"
 readme = "README.md"
-keywords = ["cucumber", "testing"]
+keywords = ["cucumber", "testing", "rspec", "bdd"]
 build = "build.rs"
 
 
