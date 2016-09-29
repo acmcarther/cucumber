@@ -29,7 +29,7 @@ pub mod cucumber_regex;
 
 mod launcher;
 
-pub use launcher::{ruby_command, create_config};
+pub use launcher::{ruby_command, create_config, CucumberConfig};
 
 pub use runner::{CommandRunner, WorldRunner};
 pub use definitions::registration::CucumberRegistrar;
