@@ -4,11 +4,11 @@ Feature: Invalid argument types
     Given a project if I don't already have one
     And the steps
       """
-        Given!(c, "^I just explode$", |c: &Cucumber<u32>, _, _| {
+        Given!(c, "^I just explode$", |c: &Cucumber<u32>, _, ()| {
           c.fail("Should not have invoked this scenario");
         });
 
-        Given!(c, "^I run normally$", |_, _, _| {
+        Given!(c, "^I run normally$", |_, _, ()| {
         });
       """
     Then the project compiles

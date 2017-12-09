@@ -4,7 +4,7 @@ use support::fs;
 
 #[allow(dead_code)]
 pub fn register_steps(c: &mut CucumberRegistrar<CucumberWorld>) {
-  Given!(c, "^a project$", |_, world: &mut CucumberWorld, _| {
+  Given!(c, "^a project$", |_, world: &mut CucumberWorld, ()| {
     match fs::create_project() {
       Ok(current_project) => {
         world.current_project = Some(current_project);
@@ -15,7 +15,7 @@ pub fn register_steps(c: &mut CucumberRegistrar<CucumberWorld>) {
 
   Given!(c,
          "^a project if I don't already have one$",
-         |cuke: &Cucumber<CucumberWorld>, world: &mut CucumberWorld, _| {
+         |cuke: &Cucumber<CucumberWorld>, world: &mut CucumberWorld, ()| {
            match world.current_project {
              None => cuke.invoke("a project", world, None),
              _ => {},
@@ -35,7 +35,7 @@ pub fn register_steps(c: &mut CucumberRegistrar<CucumberWorld>) {
 
   Then!(c,
         "^the project compiles$",
-        |_, world: &mut CucumberWorld, _| {
+        |_, world: &mut CucumberWorld, ()| {
     match world.current_project {
       None => return panic!("There was no project to compile"),
       Some(ref mut project) => {
@@ -71,14 +71,14 @@ pub fn register_steps(c: &mut CucumberRegistrar<CucumberWorld>) {
 
   Then!(c,
         "^the feature passes with no undefined steps$",
-        |cuke: &Cucumber<CucumberWorld>, world: &mut CucumberWorld, _| {
+        |cuke: &Cucumber<CucumberWorld>, world: &mut CucumberWorld, ()| {
           cuke.invoke("the feature passes", world, None);
           cuke.invoke("the feature reports no undefined steps", world, None);
         });
 
   Then!(c,
         "^the feature passes$",
-        |_, world: &mut CucumberWorld, _| {
+        |_, world: &mut CucumberWorld, ()| {
     match world.execute_result {
       None => panic!("Expected there to be an execute result but there wasn't one"),
       Some(Err(ref err)) => panic!("Expected scenario to pass but it failed with {}", err),
@@ -98,7 +98,7 @@ pub fn register_steps(c: &mut CucumberRegistrar<CucumberWorld>) {
 
   Then!(c,
         "^the feature reports an undefined step$",
-        |_, world: &mut CucumberWorld, _| {
+        |_, world: &mut CucumberWorld, ()| {
     match world.execute_result {
       None => panic!("Expected there to be an execute result but there wasn't one"),
       Some(Err(_)) => {
@@ -110,7 +110,7 @@ pub fn register_steps(c: &mut CucumberRegistrar<CucumberWorld>) {
 
   Then!(c,
         "^the feature reports no undefined steps$",
-        |_, world: &mut CucumberWorld, _| {
+        |_, world: &mut CucumberWorld, ()| {
     match world.execute_result {
       None => panic!("Expected there to be an execute result but there wasn't one"),
       Some(Err(_)) => {
@@ -122,7 +122,7 @@ pub fn register_steps(c: &mut CucumberRegistrar<CucumberWorld>) {
 
   Then!(c,
         "^the feature reports a pending step$",
-        |_, world: &mut CucumberWorld, _| {
+        |_, world: &mut CucumberWorld, ()| {
     match world.execute_result {
       None => panic!("Expected there to be an execute result but there wasn't one"),
       Some(Err(_)) => {

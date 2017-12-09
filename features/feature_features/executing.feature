@@ -4,24 +4,24 @@ Feature: Executing Features
     Given a project if I don't already have one
     And the steps
       """
-        Given!(c, "^a passing given step$", |_, _, _| {
+        Given!(c, "^a passing given step$", |_, _, ()| {
         });
 
-        When!(c, "^a passing when step$", |_, _, _| {
+        When!(c, "^a passing when step$", |_, _, ()| {
         });
 
-        Then!(c, "^a passing then step$", |_, _, _| {
+        Then!(c, "^a passing then step$", |_, _, ()| {
         });
 
-        Given!(c, "^a failing given step$", |_, _, _| {
+        Given!(c, "^a failing given step$", |_, _, ()| {
           panic!("Given Step Failed");
         });
 
-        When!(c, "^a failing when step$", |_, _, _| {
+        When!(c, "^a failing when step$", |_, _, ()| {
           panic!("When Step Failed");
         });
 
-        Then!(c, "^a failing then step$", |_, _, _| {
+        Then!(c, "^a failing then step$", |_, _, ()| {
           panic!("Then Step Failed");
         });
       """

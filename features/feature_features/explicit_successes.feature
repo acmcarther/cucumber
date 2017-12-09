@@ -3,7 +3,7 @@ Feature: Explicit (early) success
     Given a project if I don't already have one
     And the steps
       """
-        Given!(c, "^an ordinary step$", |c: &Cucumber<u32>, _, _| {
+        Given!(c, "^an ordinary step$", |c: &Cucumber<u32>, _, ()| {
           c.succeed_immediately();
           panic!("Unreachable panic!");
         });

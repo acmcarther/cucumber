@@ -4,7 +4,7 @@ Feature: Pending Steps
     Given a project if I don't already have one
     And the steps
       """
-      Given!(c, "^a pending step$", |c: &Cucumber<u32>, _, _| {
+      Given!(c, "^a pending step$", |c: &Cucumber<u32>, _, ()| {
           c.pending("Test step is pending");
         });
       """

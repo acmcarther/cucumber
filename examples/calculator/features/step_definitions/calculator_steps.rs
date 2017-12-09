@@ -8,17 +8,17 @@ pub fn register_steps(c: &mut CucumberRegistrar<CalculatorWorld>) {
 
   Given!(c,
          "^a clear calculator$",
-         |_, world: &mut CalculatorWorld, _| {
+         |_, world: &mut CalculatorWorld, ()| {
            world.calculator.clear();
          });
 
-  When!(c, "^I begin adding$", |_, world: &mut CalculatorWorld, _| {
+  When!(c, "^I begin adding$", |_, world: &mut CalculatorWorld, ()| {
     world.last_response = Some(world.calculator.push_command(CalculatorCommand::Add));
   });
 
   When!(c,
         "^I begin subtracting$",
-        |_, world: &mut CalculatorWorld, _| {
+        |_, world: &mut CalculatorWorld, ()| {
           world.last_response = Some(world.calculator.push_command(CalculatorCommand::Minus));
         });
 

@@ -3,7 +3,7 @@ Feature: Explicit failures
     Given a project if I don't already have one
     And the steps
       """
-        Given!(c, "^an ordinary step$", |c: &Cucumber<u32>, _, _| {
+        Given!(c, "^an ordinary step$", |c: &Cucumber<u32>, _, ()| {
           c.fail("I just don't want this step to pass");
         });
       """
