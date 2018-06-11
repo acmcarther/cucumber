@@ -1,5 +1,7 @@
 # Cucumber (for Rust)
 
+## Looking for maintainers!
+
 [![Build Status](https://travis-ci.org/acmcarther/cucumber.svg?branch=master)](https://travis-ci.org/acmcarther/cucumber)
 
 [Documentation](https://acmcarther.github.io/cucumber/cucumber/index.html)
