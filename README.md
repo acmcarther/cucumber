@@ -1,6 +1,6 @@
 # Cucumber (for Rust)
 
-## Looking for maintainers!
+## Note: This project is not actively maintained. Consider instead [cucumber-rust](https://github.com/bbqsrc/cucumber-rust), a Cucumber implementation with no external dependencies.
 
 [![Build Status](https://travis-ci.org/acmcarther/cucumber.svg?branch=master)](https://travis-ci.org/acmcarther/cucumber)
 
